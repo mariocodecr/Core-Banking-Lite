@@ -24,7 +24,10 @@ public enum ErrorCode {
     DUPLICATE_RESOURCE("CBL-021", "Resource already exists", HttpStatus.CONFLICT),
     INSUFFICIENT_BALANCE("CBL-022", "Insufficient balance", HttpStatus.UNPROCESSABLE_ENTITY),
     ACCOUNT_INACTIVE("CBL-023", "Account is not active", HttpStatus.UNPROCESSABLE_ENTITY),
-    DAILY_LIMIT_EXCEEDED("CBL-024", "Daily transfer limit exceeded", HttpStatus.UNPROCESSABLE_ENTITY);
+    DAILY_LIMIT_EXCEEDED("CBL-024", "Daily transfer limit exceeded", HttpStatus.UNPROCESSABLE_ENTITY),
+
+    // Concurrency
+    CONCURRENCY_CONFLICT("CBL-030", "Concurrent modification detected, please retry", HttpStatus.CONFLICT);
 
     private final String code;
     private final String defaultMessage;

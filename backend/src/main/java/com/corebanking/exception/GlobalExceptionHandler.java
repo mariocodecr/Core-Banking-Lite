@@ -3,6 +3,7 @@ package com.corebanking.exception;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -30,6 +31,28 @@ public class GlobalExceptionHandler {
                 .build();
 
         return ResponseEntity.status(ex.getErrorCode().getHttpStatus()).body(body);
+    }
+
+    /**
+     * Raised when two concurrent transactions try to update the same versioned entity.
+     * The @Version field on Account triggers this when an optimistic lock conflict occurs.
+     * Clients should retry the operation.
+     */
+    @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
+    public ResponseEntity<ErrorResponse> handleOptimisticLocking(
+            ObjectOptimisticLockingFailureException ex, HttpServletRequest request) {
+
+        log.warn("Optimistic locking conflict at {}: {}", request.getRequestURI(), ex.getMessage());
+
+        ErrorResponse body = ErrorResponse.builder()
+                .errorCode(ErrorCode.CONCURRENCY_CONFLICT.getCode())
+                .message("La operación fue modificada concurrentemente. Por favor, reintentá.")
+                .status(ErrorCode.CONCURRENCY_CONFLICT.getHttpStatus().value())
+                .timestamp(LocalDateTime.now())
+                .path(request.getRequestURI())
+                .build();
+
+        return ResponseEntity.status(ErrorCode.CONCURRENCY_CONFLICT.getHttpStatus()).body(body);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
