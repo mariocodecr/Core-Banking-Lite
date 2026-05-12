@@ -140,7 +140,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
-    public AccountResponse debit(UUID accountId, BigDecimal amount, String description, String reference) {
+    public AccountResponse debit(UUID accountId, BigDecimal amount, String description, String reference, MovementType movementType) {
         Account account = findActiveAccount(accountId);
 
         if (account.getSaldo().compareTo(amount) < 0) {
@@ -153,20 +153,20 @@ public class AccountServiceImpl implements AccountService {
         account.setSaldo(account.getSaldo().subtract(amount));
         Account saved = accountRepository.save(account);
 
-        registerMovement(saved, MovementType.RETIRO, amount, saldoAnterior, description, reference);
+        registerMovement(saved, movementType, amount, saldoAnterior, description, reference);
         return accountMapper.toResponse(saved);
     }
 
     @Override
     @Transactional
-    public AccountResponse credit(UUID accountId, BigDecimal amount, String description, String reference) {
+    public AccountResponse credit(UUID accountId, BigDecimal amount, String description, String reference, MovementType movementType) {
         Account account = findActiveAccount(accountId);
 
         BigDecimal saldoAnterior = account.getSaldo();
         account.setSaldo(account.getSaldo().add(amount));
         Account saved = accountRepository.save(account);
 
-        registerMovement(saved, MovementType.DEPOSITO, amount, saldoAnterior, description, reference);
+        registerMovement(saved, movementType, amount, saldoAnterior, description, reference);
         return accountMapper.toResponse(saved);
     }
 

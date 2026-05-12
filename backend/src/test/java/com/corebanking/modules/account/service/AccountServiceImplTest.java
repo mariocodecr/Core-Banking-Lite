@@ -5,6 +5,7 @@ import com.corebanking.exception.ErrorCode;
 import com.corebanking.modules.account.dto.AccountResponse;
 import com.corebanking.modules.account.dto.CreateAccountRequest;
 import com.corebanking.modules.account.entity.*;
+import com.corebanking.modules.account.entity.MovementType;
 import com.corebanking.modules.account.mapper.AccountMapper;
 import com.corebanking.modules.account.repository.AccountMovementRepository;
 import com.corebanking.modules.account.repository.AccountRepository;
@@ -178,7 +179,7 @@ class AccountServiceImplTest {
         when(accountRepository.save(account)).thenReturn(account);
         when(accountMapper.toResponse(account)).thenReturn(accountResponse);
 
-        accountService.debit(accountId, new BigDecimal("300.00"), "Pago servicio", null);
+        accountService.debit(accountId, new BigDecimal("300.00"), "Pago servicio", null, MovementType.RETIRO);
 
         assertThat(account.getSaldo()).isEqualByComparingTo("700.00");
         verify(movementRepository).save(any(AccountMovement.class));
@@ -189,7 +190,7 @@ class AccountServiceImplTest {
     void debit_insufficientBalance_throwsException() {
         when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
 
-        assertThatThrownBy(() -> accountService.debit(accountId, new BigDecimal("9999.00"), "Pago", null))
+        assertThatThrownBy(() -> accountService.debit(accountId, new BigDecimal("9999.00"), "Pago", null, MovementType.RETIRO))
                 .isInstanceOf(BusinessException.class)
                 .satisfies(ex -> assertThat(((BusinessException) ex).getErrorCode())
                         .isEqualTo(ErrorCode.INSUFFICIENT_BALANCE));
@@ -204,7 +205,7 @@ class AccountServiceImplTest {
         when(accountRepository.save(account)).thenReturn(account);
         when(accountMapper.toResponse(account)).thenReturn(accountResponse);
 
-        accountService.credit(accountId, new BigDecimal("250.00"), "Depósito", null);
+        accountService.credit(accountId, new BigDecimal("250.00"), "Depósito", null, MovementType.DEPOSITO);
 
         assertThat(account.getSaldo()).isEqualByComparingTo("1250.00");
         verify(movementRepository).save(any(AccountMovement.class));
@@ -216,7 +217,7 @@ class AccountServiceImplTest {
         account.setEstado(AccountStatus.CONGELADA);
         when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
 
-        assertThatThrownBy(() -> accountService.debit(accountId, new BigDecimal("100.00"), "Pago", null))
+        assertThatThrownBy(() -> accountService.debit(accountId, new BigDecimal("100.00"), "Pago", null, MovementType.RETIRO))
                 .isInstanceOf(BusinessException.class)
                 .satisfies(ex -> assertThat(((BusinessException) ex).getErrorCode())
                         .isEqualTo(ErrorCode.ACCOUNT_INACTIVE));
