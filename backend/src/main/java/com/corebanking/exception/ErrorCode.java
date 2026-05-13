@@ -27,7 +27,10 @@ public enum ErrorCode {
     DAILY_LIMIT_EXCEEDED("CBL-024", "Daily transfer limit exceeded", HttpStatus.UNPROCESSABLE_ENTITY),
 
     // Concurrency
-    CONCURRENCY_CONFLICT("CBL-030", "Concurrent modification detected, please retry", HttpStatus.CONFLICT);
+    CONCURRENCY_CONFLICT("CBL-030", "Concurrent modification detected, please retry", HttpStatus.CONFLICT),
+
+    // Rate limiting
+    RATE_LIMIT_EXCEEDED("CBL-040", "Too many requests, please slow down", HttpStatus.TOO_MANY_REQUESTS);
 
     private final String code;
     private final String defaultMessage;
