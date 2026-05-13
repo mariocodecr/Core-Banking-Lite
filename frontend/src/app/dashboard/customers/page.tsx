@@ -7,6 +7,7 @@ import { CustomerTable } from "@/features/customers/customer-table";
 import { CustomerFormDrawer } from "@/features/customers/customer-form-drawer";
 import type { Customer, CustomerFilterParams } from "@/types/customer.types";
 import { PAGINATION_DEFAULTS } from "@/constants";
+import { usePermissions } from "@/hooks/use-current-user";
 
 export default function CustomersPage() {
   const [filters, setFilters] = useState<CustomerFilterParams>({
@@ -19,6 +20,7 @@ export default function CustomersPage() {
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
 
   const { data, isLoading, isError } = useCustomers(filters);
+  const { canManageCustomers } = usePermissions();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,13 +54,15 @@ export default function CustomersPage() {
             {data ? `${data.totalElements} clientes registrados` : "Cargando..."}
           </p>
         </div>
-        <button
-          onClick={handleCreate}
-          className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
-        >
-          <Plus className="h-4 w-4" />
-          Nuevo cliente
-        </button>
+        {canManageCustomers && (
+          <button
+            onClick={handleCreate}
+            className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
+          >
+            <Plus className="h-4 w-4" />
+            Nuevo cliente
+          </button>
+        )}
       </div>
 
       {/* Filters */}
@@ -88,7 +92,7 @@ export default function CustomersPage() {
       ) : isLoading ? (
         <CustomerTableSkeleton />
       ) : (
-        <CustomerTable customers={data?.content ?? []} onEdit={handleEdit} />
+        <CustomerTable customers={data?.content ?? []} onEdit={canManageCustomers ? handleEdit : undefined} />
       )}
 
       {/* Pagination */}

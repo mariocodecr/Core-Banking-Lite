@@ -14,20 +14,48 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLogout } from "@/hooks/use-auth";
+import { useCurrentUser } from "@/hooks/use-current-user";
 import { ROUTES } from "@/constants";
+import type { Role } from "@/types/auth.types";
 
-const NAV_ITEMS = [
-  { href: ROUTES.DASHBOARD,  label: "Dashboard",     icon: LayoutDashboard },
-  { href: ROUTES.CUSTOMERS,  label: "Clientes",      icon: Users },
-  { href: ROUTES.ACCOUNTS,   label: "Cuentas",       icon: CreditCard },
-  { href: ROUTES.TRANSFERS,  label: "Transferencias",icon: ArrowLeftRight },
-  { href: ROUTES.SAVINGS,    label: "Ahorros / CTS", icon: PiggyBank },
-  { href: ROUTES.AUDIT,      label: "Auditoría",     icon: ClipboardList },
+const ROLE_LABEL: Record<Role, string> = {
+  ADMIN:   "Administrador",
+  ADVISOR: "Asesor",
+  AUDITOR: "Auditor",
+  CLIENT:  "Cliente",
+};
+
+const ROLE_COLOR: Record<Role, string> = {
+  ADMIN:   "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400",
+  ADVISOR: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400",
+  AUDITOR: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400",
+  CLIENT:  "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400",
+};
+
+type NavItem = {
+  href: string;
+  label: string;
+  icon: React.ElementType;
+  roles: Role[];
+};
+
+const NAV_ITEMS: NavItem[] = [
+  { href: ROUTES.DASHBOARD,  label: "Dashboard",      icon: LayoutDashboard, roles: ["ADMIN", "ADVISOR", "AUDITOR"] },
+  { href: ROUTES.CUSTOMERS,  label: "Clientes",       icon: Users,           roles: ["ADMIN", "ADVISOR", "AUDITOR"] },
+  { href: ROUTES.ACCOUNTS,   label: "Cuentas",        icon: CreditCard,      roles: ["ADMIN", "ADVISOR", "AUDITOR", "CLIENT"] },
+  { href: ROUTES.TRANSFERS,  label: "Transferencias", icon: ArrowLeftRight,  roles: ["ADMIN", "ADVISOR", "AUDITOR", "CLIENT"] },
+  { href: ROUTES.SAVINGS,    label: "Ahorros / CTS",  icon: PiggyBank,       roles: ["ADMIN", "ADVISOR", "AUDITOR"] },
+  { href: ROUTES.AUDIT,      label: "Auditoría",      icon: ClipboardList,   roles: ["ADMIN", "ADVISOR", "AUDITOR"] },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { mutate: logout } = useLogout();
+  const user = useCurrentUser();
+
+  const visibleNav = user
+    ? NAV_ITEMS.filter((item) => item.roles.includes(user.role))
+    : NAV_ITEMS;
 
   return (
     <div className="flex h-screen bg-slate-50 dark:bg-slate-950">
@@ -43,9 +71,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </span>
         </div>
 
+        {/* User info */}
+        {user && (
+          <div className="border-b border-slate-200 px-5 py-3 dark:border-slate-800">
+            <p className="truncate text-xs font-semibold text-slate-900 dark:text-white">
+              {user.fullName}
+            </p>
+            <p className="truncate text-[10px] text-slate-500">{user.email}</p>
+            <span className={cn("mt-1.5 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold", ROLE_COLOR[user.role])}>
+              {ROLE_LABEL[user.role]}
+            </span>
+          </div>
+        )}
+
         {/* Nav */}
         <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4">
-          {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
+          {visibleNav.map(({ href, label, icon: Icon }) => {
             const active = pathname === href || (href !== ROUTES.DASHBOARD && pathname.startsWith(href));
             return (
               <Link

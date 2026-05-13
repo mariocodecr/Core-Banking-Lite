@@ -1,4 +1,7 @@
 import { TOKEN_KEYS } from "@/constants";
+import type { UserInfo } from "@/types/auth.types";
+
+const USER_KEY = "cbl_user";
 
 const SESSION_COOKIE = "cbl_session";
 const SESSION_MAX_AGE = 86400; // 24h
@@ -27,4 +30,22 @@ export function getAccessToken(): string | null {
 export function getRefreshToken(): string | null {
   if (typeof window === "undefined") return null;
   return localStorage.getItem(TOKEN_KEYS.REFRESH);
+}
+
+export function setUser(user: UserInfo): void {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(USER_KEY, JSON.stringify(user));
+}
+
+export function getUser(): UserInfo | null {
+  if (typeof window === "undefined") return null;
+  const raw = localStorage.getItem(USER_KEY);
+  if (!raw) return null;
+  try { return JSON.parse(raw) as UserInfo; }
+  catch { return null; }
+}
+
+export function clearUser(): void {
+  if (typeof window === "undefined") return;
+  localStorage.removeItem(USER_KEY);
 }

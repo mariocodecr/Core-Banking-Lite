@@ -9,6 +9,7 @@ import { CreateAccountDrawer } from "@/features/accounts/create-account-drawer";
 import { formatCurrency } from "@/lib/utils";
 import type { Account, AccountFilterParams } from "@/types/account.types";
 import { PAGINATION_DEFAULTS } from "@/constants";
+import { usePermissions } from "@/hooks/use-current-user";
 
 export default function SavingsPage() {
   const [filters, setFilters] = useState<AccountFilterParams>({
@@ -25,6 +26,7 @@ export default function SavingsPage() {
   const { mutate: freeze }   = useFreezeAccount();
   const { mutate: unfreeze } = useUnfreezeAccount();
   const { mutate: close }    = useCloseAccount();
+  const { canCreateAccounts, canFreezeAccounts, canCloseAccounts } = usePermissions();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,13 +64,15 @@ export default function SavingsPage() {
               {data ? `${data.totalElements} cuentas` : "Cargando..."}
             </p>
           </div>
-          <button
-            onClick={() => setDrawerOpen(true)}
-            className="flex items-center gap-1.5 rounded-xl bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-700"
-          >
-            <Plus className="h-3.5 w-3.5" />
-            Nueva
-          </button>
+          {canCreateAccounts && (
+            <button
+              onClick={() => setDrawerOpen(true)}
+              className="flex items-center gap-1.5 rounded-xl bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-700"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              Nueva
+            </button>
+          )}
         </div>
 
         {/* Summary strip */}
@@ -168,21 +172,21 @@ export default function SavingsPage() {
 
               {/* Actions */}
               <div className="flex gap-2">
-                {selectedAccount.estado === "ACTIVA" && (
+                {canFreezeAccounts && selectedAccount.estado === "ACTIVA" && (
                   <ActionButton
                     label="Congelar"
                     onClick={() => handleAction("freeze")}
                     className="border-blue-200 text-blue-600 hover:bg-blue-50"
                   />
                 )}
-                {selectedAccount.estado === "CONGELADA" && (
+                {canFreezeAccounts && selectedAccount.estado === "CONGELADA" && (
                   <ActionButton
                     label="Descongelar"
                     onClick={() => handleAction("unfreeze")}
                     className="border-emerald-200 text-emerald-600 hover:bg-emerald-50"
                   />
                 )}
-                {selectedAccount.estado !== "CERRADA" && (
+                {canCloseAccounts && selectedAccount.estado !== "CERRADA" && (
                   <ActionButton
                     label="Cerrar cuenta"
                     onClick={() => handleAction("close")}
