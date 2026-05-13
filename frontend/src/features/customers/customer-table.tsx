@@ -1,6 +1,6 @@
 "use client";
 
-import { Pencil, Trash2, ToggleLeft, ToggleRight } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import { cn, formatDate } from "@/lib/utils";
 import type { Customer } from "@/types/customer.types";
 import { useDeleteCustomer } from "@/hooks/use-customers";
