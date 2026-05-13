@@ -28,6 +28,7 @@ val mapstructVersion = "1.6.2"
 val jjwtVersion = "0.12.6"
 val springdocVersion = "2.6.0"
 val lombokMapstructBindingVersion = "0.2.0"
+val logstashEncoderVersion = "8.0"
 
 dependencies {
     // Spring Boot starters
@@ -36,6 +37,10 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.boot:spring-boot-starter-aop")
+
+    // Structured JSON logging (production)
+    implementation("net.logstash.logback:logstash-logback-encoder:$logstashEncoderVersion")
 
     // Database
     runtimeOnly("org.postgresql:postgresql")
@@ -67,6 +72,10 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:postgresql")
+}
+
+springBoot {
+    buildInfo()
 }
 
 tasks.withType<Test> {
