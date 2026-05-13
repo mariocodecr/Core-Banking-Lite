@@ -18,6 +18,21 @@ services:
       timeout: 5s
       retries: 5
 
+  redis:
+    image: redis:7-alpine
+    container_name: corebanking-redis
+    restart: unless-stopped
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   backend:
     build:
       context: ./backend
@@ -32,10 +47,14 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000}
       TRANSFER_DAILY_LIMIT: ${TRANSFER_DAILY_LIMIT:-50000.00}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
     ports:
       - "${BACKEND_PORT:-8080}:8080"
     depends_on:
       postgres:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:8080/api/actuator/health || exit 1"]
@@ -64,3 +83,4 @@ services:
 
 volumes:
   postgres_data:
+  redis_data:
