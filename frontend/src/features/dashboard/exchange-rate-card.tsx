@@ -1,6 +1,6 @@
 "use client";
 
-import { RefreshCw, TrendingUp } from "lucide-react";
+import { RefreshCw, TrendingUp, AlertCircle } from "lucide-react";
 import { useExchangeRate } from "@/hooks/use-exchange-rate";
 
 function RateRow({
@@ -50,8 +50,10 @@ function RateRow({
 }
 
 export function ExchangeRateCard() {
-  const { data: usdRate, isLoading: loadingUsd, dataUpdatedAt: usdUpdated } = useExchangeRate("USD", "CRC");
-  const { data: eurRate, isLoading: loadingEur } = useExchangeRate("EUR", "CRC");
+  const { data: usdRate, isLoading: loadingUsd, isError: errorUsd, dataUpdatedAt: usdUpdated } = useExchangeRate("USD", "CRC");
+  const { data: eurRate, isLoading: loadingEur, isError: errorEur } = useExchangeRate("EUR", "CRC");
+
+  const hasError = errorUsd || errorEur;
 
   const updatedAt = usdUpdated
     ? new Date(usdUpdated).toLocaleTimeString("es-CR", { hour: "2-digit", minute: "2-digit" })
@@ -79,6 +81,16 @@ export function ExchangeRateCard() {
           </div>
         )}
       </div>
+
+      {/* Error state */}
+      {hasError && (
+        <div className="mb-3 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5 dark:border-amber-800 dark:bg-amber-900/20">
+          <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-500" />
+          <p className="text-xs text-amber-700 dark:text-amber-300">
+            No se pudo conectar con BCCR. Verificá que el backend tenga las variables <code className="font-mono font-bold">BCCR_EMAIL</code> y <code className="font-mono font-bold">BCCR_TOKEN</code> configuradas.
+          </p>
+        </div>
+      )}
 
       {/* Rates */}
       <div className="space-y-2">
