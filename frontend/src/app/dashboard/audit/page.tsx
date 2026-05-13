@@ -82,7 +82,7 @@ export default function AuditPage() {
         <StatCard
           icon={<TrendingUp className="h-4 w-4 text-blue-600" />}
           label="Volumen procesado"
-          value={formatCurrency(stats.volume, "PEN")}
+          value={formatCurrency(stats.volume, "USD")}
           bg="bg-blue-50 dark:bg-blue-900/20"
         />
       </div>

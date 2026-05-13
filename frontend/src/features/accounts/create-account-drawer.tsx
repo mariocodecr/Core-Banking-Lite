@@ -40,7 +40,7 @@ export function CreateAccountDrawer({ open, onClose, preselectedCustomerId }: Pr
     resolver: zodResolver(schema),
     defaultValues: {
       customerId: preselectedCustomerId ?? "",
-      moneda: "PEN",
+      moneda: "USD",
       saldoInicial: 0,
     },
   });
@@ -112,8 +112,9 @@ export function CreateAccountDrawer({ open, onClose, preselectedCustomerId }: Pr
                   {...register("moneda")}
                   className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm focus:border-blue-500 focus:outline-none"
                 >
-                  <option value="PEN">PEN — Sol</option>
                   <option value="USD">USD — Dólar</option>
+                  <option value="CRC">CRC — Colón</option>
+                  <option value="EUR">EUR — Euro</option>
                 </select>
               </div>
 

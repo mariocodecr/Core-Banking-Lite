@@ -56,12 +56,12 @@ export function TransferVolumeChart() {
           tick={{ fontSize: 11, fill: "#94a3b8" }}
           tickLine={false}
           axisLine={false}
-          tickFormatter={(v) => `S/ ${(v / 1000).toFixed(0)}k`}
+          tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
           width={56}
         />
         <Tooltip
           contentStyle={{ borderRadius: 12, fontSize: 12, border: "1px solid #e2e8f0" }}
-          formatter={(value) => [formatCurrency(Number(value), "PEN"), "Volumen"] as [string, string]}
+          formatter={(value) => [formatCurrency(Number(value), "USD"), "Volumen"] as [string, string]}
         />
         <Area
           type="monotone"

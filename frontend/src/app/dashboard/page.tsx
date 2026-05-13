@@ -54,7 +54,7 @@ export default function DashboardPage() {
         <KpiCard
           label="Transferencias hoy"
           value={summary?.totalTransfersToday ?? "—"}
-          sub={summary ? formatCurrency(summary.transferVolumeToday, "PEN") : undefined}
+          sub={summary ? formatCurrency(summary.transferVolumeToday, "USD") : undefined}
           icon={ArrowLeftRight}
           color="violet"
           isLoading={isLoading}
@@ -62,7 +62,7 @@ export default function DashboardPage() {
         <KpiCard
           label="Transferencias este mes"
           value={summary?.totalTransfersThisMonth ?? "—"}
-          sub={summary ? formatCurrency(summary.transferVolumeThisMonth, "PEN") : undefined}
+          sub={summary ? formatCurrency(summary.transferVolumeThisMonth, "USD") : undefined}
           icon={TrendingUp}
           color="amber"
           isLoading={isLoading}
@@ -70,17 +70,24 @@ export default function DashboardPage() {
       </div>
 
       {/* Balance KPIs */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
         <KpiCard
-          label="Saldo total PEN"
-          value={summary ? formatCurrency(summary.totalBalancePEN, "PEN") : "—"}
+          label="Saldo total USD"
+          value={summary ? formatCurrency(summary.totalBalanceUSD, "USD") : "—"}
           icon={Banknote}
           color="emerald"
           isLoading={isLoading}
         />
         <KpiCard
-          label="Saldo total USD"
-          value={summary ? formatCurrency(summary.totalBalanceUSD, "USD") : "—"}
+          label="Saldo total CRC"
+          value={summary ? formatCurrency(summary.totalBalanceCRC, "CRC") : "—"}
+          icon={Banknote}
+          color="amber"
+          isLoading={isLoading}
+        />
+        <KpiCard
+          label="Saldo total EUR"
+          value={summary ? formatCurrency(summary.totalBalanceEUR, "EUR") : "—"}
           icon={Activity}
           color="blue"
           isLoading={isLoading}

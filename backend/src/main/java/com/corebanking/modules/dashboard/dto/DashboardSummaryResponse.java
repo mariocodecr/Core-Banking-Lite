@@ -15,8 +15,9 @@ public class DashboardSummaryResponse {
     private long activeCustomers;
 
     private long totalAccounts;
-    private BigDecimal totalBalancePEN;
     private BigDecimal totalBalanceUSD;
+    private BigDecimal totalBalanceCRC;
+    private BigDecimal totalBalanceEUR;
 
     private long totalTransfersToday;
     private BigDecimal transferVolumeToday;

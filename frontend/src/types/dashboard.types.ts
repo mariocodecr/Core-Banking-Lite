@@ -4,8 +4,9 @@ export interface DashboardSummary {
   totalCustomers: number;
   activeCustomers: number;
   totalAccounts: number;
-  totalBalancePEN: number;
   totalBalanceUSD: number;
+  totalBalanceCRC: number;
+  totalBalanceEUR: number;
   totalTransfersToday: number;
   transferVolumeToday: number;
   totalTransfersThisMonth: number;

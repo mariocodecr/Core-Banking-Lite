@@ -19,7 +19,7 @@ interface Props {
   currency?: string;
 }
 
-export function AccountMovements({ accountId, currency = "PEN" }: Props) {
+export function AccountMovements({ accountId, currency = "USD" }: Props) {
   const { data, isLoading } = useAccountMovements(accountId);
 
   if (isLoading) {

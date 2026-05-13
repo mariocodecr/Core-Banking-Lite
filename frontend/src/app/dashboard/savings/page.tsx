@@ -41,8 +41,11 @@ export default function SavingsPage() {
   };
 
   const activeAccounts = data?.content.filter((a) => a.estado === "ACTIVA") ?? [];
-  const totalBalance   = activeAccounts.reduce((sum, a) => sum + a.saldo, 0);
   const activeCount    = activeAccounts.length;
+  const balanceByCurrency = activeAccounts.reduce<Record<string, number>>((acc, a) => {
+    acc[a.moneda] = (acc[a.moneda] ?? 0) + a.saldo;
+    return acc;
+  }, {});
 
   return (
     <div className="flex h-full flex-col gap-0 lg:flex-row">
@@ -71,11 +74,14 @@ export default function SavingsPage() {
         {/* Summary strip */}
         {data && (
           <div className="grid grid-cols-2 gap-3">
-            <SummaryCard
-              icon={<Wallet className="h-4 w-4 text-blue-600" />}
-              label="Saldo total activo"
-              value={formatCurrency(totalBalance, "PEN")}
-            />
+            {Object.entries(balanceByCurrency).map(([currency, balance]) => (
+              <SummaryCard
+                key={currency}
+                icon={<Wallet className="h-4 w-4 text-blue-600" />}
+                label={`Saldo activo ${currency}`}
+                value={formatCurrency(balance, currency)}
+              />
+            ))}
             <SummaryCard
               icon={<TrendingUp className="h-4 w-4 text-emerald-600" />}
               label="Cuentas activas"

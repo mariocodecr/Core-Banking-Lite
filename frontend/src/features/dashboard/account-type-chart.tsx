@@ -62,7 +62,7 @@ export function AccountTypeChart() {
           contentStyle={{ borderRadius: 12, fontSize: 12, border: "1px solid #e2e8f0" }}
           formatter={(value, _name, item) => {
             const p = (item as { payload: { totalBalance: number; name: string } }).payload;
-            return [`${Number(value)} cuentas — ${formatCurrency(p.totalBalance, "PEN")}`, p.name] as [string, string];
+            return [`${Number(value)} cuentas — ${formatCurrency(p.totalBalance, "USD")}`, p.name] as [string, string];
           }}
         />
         <Legend

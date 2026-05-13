@@ -37,10 +37,10 @@ describe("formatCurrency", () => {
     expect(result).toContain("0");
   });
 
-  it("defaults currency to PEN when not provided", () => {
+  it("defaults currency to USD when not provided", () => {
     const withDefault = formatCurrency(100);
-    const withPEN     = formatCurrency(100, "PEN");
-    expect(withDefault).toBe(withPEN);
+    const withUSD     = formatCurrency(100, "USD");
+    expect(withDefault).toBe(withUSD);
   });
 });
 

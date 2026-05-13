@@ -11,7 +11,7 @@ const baseAccount: Account = {
   tipo: "AHORROS",
   estado: "ACTIVA",
   saldo: 1500,
-  moneda: "PEN",
+  moneda: "USD",
   fechaApertura: "2024-01-01",
   createdAt: "2024-01-01T00:00:00",
   version: 1,

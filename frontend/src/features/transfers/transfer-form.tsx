@@ -114,7 +114,7 @@ export function TransferForm({ onSuccess }: { onSuccess?: () => void }) {
         </label>
         <div className="relative">
           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium text-slate-400">
-            {origenAccount?.moneda ?? "PEN"}
+            {origenAccount?.moneda ?? "USD"}
           </span>
           <input
             {...register("monto")}
@@ -155,7 +155,7 @@ export function TransferForm({ onSuccess }: { onSuccess?: () => void }) {
       </button>
 
       <p className="text-center text-[10px] text-slate-400">
-        Límite diario: PEN 50,000.00 · La transferencia es inmediata e irreversible
+        Límite diario: 50,000.00 · La transferencia es inmediata e irreversible
       </p>
     </form>
   );
