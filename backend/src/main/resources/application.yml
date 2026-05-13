@@ -100,5 +100,5 @@ app:
     daily-limit: ${TRANSFER_DAILY_LIMIT:500000.00}
   bccr:
     enabled: true
-    email: ${BCCR_EMAIL}
-    token: ${BCCR_TOKEN}
+    email: ${BCCR_EMAIL:}
+    token: ${BCCR_TOKEN:}
