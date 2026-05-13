@@ -2,11 +2,13 @@ package com.corebanking.modules.dashboard.dto;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.extern.jackson.Jacksonized;
 
 import java.math.BigDecimal;
 
 @Getter
 @Builder
+@Jacksonized
 public class DashboardSummaryResponse {
 
     private long totalCustomers;
