@@ -73,8 +73,28 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
+val jacocoExclusions = listOf(
+    // Entry point — no logic to test
+    "**/CoreBankingApplication*",
+    // DTOs — pure data holders, no logic
+    "**/dto/**",
+    // JPA entities — getters/setters only
+    "**/entity/**",
+    // Spring configuration beans
+    "**/config/**",
+    // MapStruct generated implementations
+    "**/*MapperImpl*",
+    // Enum types
+    "**/exception/ErrorCode*"
+)
+
 tasks.jacocoTestReport {
     dependsOn(tasks.test)
+    classDirectories.setFrom(
+        files(classDirectories.files.map { dir ->
+            fileTree(dir) { exclude(jacocoExclusions) }
+        })
+    )
     reports {
         xml.required.set(true)
         html.required.set(true)
@@ -82,6 +102,11 @@ tasks.jacocoTestReport {
 }
 
 tasks.jacocoTestCoverageVerification {
+    classDirectories.setFrom(
+        files(classDirectories.files.map { dir ->
+            fileTree(dir) { exclude(jacocoExclusions) }
+        })
+    )
     violationRules {
         rule {
             limit {
