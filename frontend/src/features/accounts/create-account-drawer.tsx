@@ -1,11 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2, X } from "lucide-react";
+import { Loader2, X, Search, CheckCircle2, UserX } from "lucide-react";
 import { useCreateAccount } from "@/hooks/use-accounts";
+import { useCustomers } from "@/hooks/use-customers";
 import type { AccountType } from "@/types/account.types";
+import type { Customer } from "@/types/customer.types";
 
 const ACCOUNT_TYPES: { value: AccountType; label: string }[] = [
   { value: "AHORROS",   label: "Cuenta de Ahorros" },
@@ -14,9 +17,9 @@ const ACCOUNT_TYPES: { value: AccountType; label: string }[] = [
 ];
 
 const schema = z.object({
-  customerId:   z.string().uuid("Seleccioná un cliente válido"),
+  customerId:   z.string().uuid("Buscá un cliente por documento primero"),
   tipo:         z.enum(["AHORROS", "CTS", "CORRIENTE"] as const),
-  moneda:       z.string().length(3),
+  moneda:       z.string(),
   saldoInicial: z.coerce.number().min(0, "No puede ser negativo").optional(),
 });
 
@@ -30,11 +33,14 @@ interface Props {
 
 export function CreateAccountDrawer({ open, onClose, preselectedCustomerId }: Props) {
   const { mutate: create, isPending } = useCreateAccount(onClose);
+  const [docSearch, setDocSearch]   = useState("");
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
 
   const {
     register,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -45,10 +51,31 @@ export function CreateAccountDrawer({ open, onClose, preselectedCustomerId }: Pr
     },
   });
 
+  // Live search — only fires when ≥3 chars typed
+  const { data: searchResult, isFetching } = useCustomers({
+    numeroDocumento: docSearch.length >= 3 ? docSearch : undefined,
+    size: 1,
+  });
+
+  const foundCustomer = docSearch.length >= 3 ? (searchResult?.content[0] ?? null) : null;
+
+  const handleDocChange = (value: string) => {
+    setDocSearch(value);
+    setSelectedCustomer(null);
+    setValue("customerId", "");
+  };
+
+  const handleSelectCustomer = (customer: Customer) => {
+    setSelectedCustomer(customer);
+    setValue("customerId", customer.id, { shouldValidate: true });
+  };
+
   const onSubmit = (data: FormData) => create(data);
 
   const handleClose = () => {
     reset();
+    setDocSearch("");
+    setSelectedCustomer(null);
     onClose();
   };
 
@@ -74,20 +101,88 @@ export function CreateAccountDrawer({ open, onClose, preselectedCustomerId }: Pr
 
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-1 flex-col overflow-y-auto">
           <div className="space-y-5 px-6 py-6">
+
+            {/* Customer search by document */}
             {!preselectedCustomerId && (
-              <div className="space-y-1.5">
+              <div className="space-y-2">
                 <label className="text-xs font-medium text-slate-600">
-                  ID del cliente <span className="text-red-500">*</span>
+                  Documento del cliente <span className="text-red-500">*</span>
                 </label>
-                <input
-                  {...register("customerId")}
-                  placeholder="UUID del cliente"
-                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 font-mono text-xs text-slate-900 focus:border-blue-500 focus:outline-none"
-                />
-                {errors.customerId && <p className="text-xs text-red-500">{errors.customerId.message}</p>}
+
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
+                  <input
+                    value={docSearch}
+                    onChange={(e) => handleDocChange(e.target.value)}
+                    placeholder="DNI, Pasaporte, RUC, CE..."
+                    className="w-full rounded-lg border border-slate-200 bg-slate-50 py-2.5 pl-9 pr-9 text-sm text-slate-900 focus:border-blue-500 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                  />
+                  {isFetching && (
+                    <Loader2 className="absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 animate-spin text-slate-400" />
+                  )}
+                </div>
+
+                {/* Found — not yet selected */}
+                {foundCustomer && !selectedCustomer && (
+                  <button
+                    type="button"
+                    onClick={() => handleSelectCustomer(foundCustomer)}
+                    className="flex w-full items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-left transition-colors hover:border-blue-400 hover:bg-blue-50 dark:border-slate-700 dark:bg-slate-800"
+                  >
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-600 dark:bg-slate-700 dark:text-slate-300">
+                      {foundCustomer.nombres[0]}{foundCustomer.apellidos[0]}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-semibold text-slate-900 dark:text-white">
+                        {foundCustomer.nombreCompleto}
+                      </p>
+                      <p className="text-xs text-slate-500">
+                        {foundCustomer.tipoDocumento} · {foundCustomer.numeroDocumento}
+                      </p>
+                    </div>
+                    <span className="text-xs font-medium text-blue-600">Seleccionar</span>
+                  </button>
+                )}
+
+                {/* Selected customer confirmation */}
+                {selectedCustomer && (
+                  <div className="flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 dark:border-emerald-800 dark:bg-emerald-900/20">
+                    <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-semibold text-emerald-800 dark:text-emerald-300">
+                        {selectedCustomer.nombreCompleto}
+                      </p>
+                      <p className="text-xs text-emerald-600 dark:text-emerald-400">
+                        {selectedCustomer.tipoDocumento} · {selectedCustomer.numeroDocumento}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleDocChange("")}
+                      className="text-xs text-emerald-600 hover:text-emerald-800"
+                    >
+                      Cambiar
+                    </button>
+                  </div>
+                )}
+
+                {/* Not found */}
+                {docSearch.length >= 3 && !isFetching && !foundCustomer && !selectedCustomer && (
+                  <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 dark:border-slate-700 dark:bg-slate-800">
+                    <UserX className="h-4 w-4 shrink-0 text-slate-400" />
+                    <p className="text-xs text-slate-500">
+                      No se encontró ningún cliente con ese documento
+                    </p>
+                  </div>
+                )}
+
+                {errors.customerId && (
+                  <p className="text-xs text-red-500">{errors.customerId.message}</p>
+                )}
               </div>
             )}
 
+            {/* Account type */}
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-slate-600">
                 Tipo de cuenta <span className="text-red-500">*</span>
