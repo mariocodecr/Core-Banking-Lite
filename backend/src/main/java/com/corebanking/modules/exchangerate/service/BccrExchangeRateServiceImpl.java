@@ -39,7 +39,8 @@ public class BccrExchangeRateServiceImpl implements ExchangeRateService {
             "https://gee.bccr.fi.cr/Indicadores/Suscripciones/WS/wsindicadoreseconomicos.asmx/ObtenerIndicadoresEconomicos";
     private static final int INDICADOR_USD_CRC = 318;
     private static final int INDICADOR_EUR_CRC = 3501;
-    private static final Pattern NUM_VALOR_PATTERN = Pattern.compile("\"NUM_VALOR\"\\s*:\\s*([\\d.]+)");
+    // BCCR uses comma OR period as decimal separator depending on locale
+    private static final Pattern NUM_VALOR_PATTERN = Pattern.compile("\"NUM_VALOR\"\\s*:\\s*([\\d.,]+)");
     private static final DateTimeFormatter BCCR_DATE = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     @Value("${app.bccr.email}")
@@ -63,11 +64,15 @@ public class BccrExchangeRateServiceImpl implements ExchangeRateService {
     // ── private helpers ──────────────────────────────────────────────────────
 
     private BigDecimal fetchRate(int indicador) {
-        String today = LocalDate.now().format(BCCR_DATE);
+        // Use a 7-day lookback window so we always get the latest published rate,
+        // even on weekends, holidays, or before BCCR publishes today's rates (before ~9 AM).
+        String fechaFinal  = LocalDate.now().format(BCCR_DATE);
+        String fechaInicio = LocalDate.now().minusDays(7).format(BCCR_DATE);
+
         String url = UriComponentsBuilder.fromHttpUrl(BCCR_URL)
                 .queryParam("Indicador", indicador)
-                .queryParam("FechaInicio", today)
-                .queryParam("FechaFinal", today)
+                .queryParam("FechaInicio", fechaInicio)
+                .queryParam("FechaFinal", fechaFinal)
                 .queryParam("Nombre", "CoreBankingLite")
                 .queryParam("SubNiveles", "N")
                 .queryParam("CorreoElectronico", email)
@@ -75,9 +80,10 @@ public class BccrExchangeRateServiceImpl implements ExchangeRateService {
                 .build(false)
                 .toUriString();
 
+        log.debug("Fetching BCCR rate: indicador={}, from={}, to={}", indicador, fechaInicio, fechaFinal);
         String xmlResponse = restTemplate.getForObject(url, String.class);
         String json = extractJsonFromXml(xmlResponse);
-        return extractNumValor(json, indicador);
+        return extractLastNumValor(json, indicador);
     }
 
     private String extractJsonFromXml(String xml) {
@@ -92,12 +98,23 @@ public class BccrExchangeRateServiceImpl implements ExchangeRateService {
         }
     }
 
-    private BigDecimal extractNumValor(String json, int indicador) {
+    /**
+     * BCCR returns one entry per day in the window. We take the LAST match,
+     * which corresponds to the most recent published rate.
+     * Also normalises comma decimal separator (Costa Rican locale) to period.
+     */
+    private BigDecimal extractLastNumValor(String json, int indicador) {
         Matcher matcher = NUM_VALOR_PATTERN.matcher(json);
-        if (matcher.find()) {
-            return new BigDecimal(matcher.group(1));
+        String lastValue = null;
+        while (matcher.find()) {
+            lastValue = matcher.group(1);
         }
-        throw new IllegalStateException(
-                "NUM_VALOR not found in BCCR response for indicador=" + indicador);
+        if (lastValue == null) {
+            log.warn("BCCR response contained no NUM_VALOR for indicador={}. Raw JSON: {}", indicador, json);
+            throw new IllegalStateException(
+                    "No rate data found in BCCR response for indicador=" + indicador);
+        }
+        // Normalise "507,50" → "507.50"
+        return new BigDecimal(lastValue.replace(',', '.'));
     }
 }
