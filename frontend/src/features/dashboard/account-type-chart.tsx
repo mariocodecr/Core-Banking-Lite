@@ -60,10 +60,10 @@ export function AccountTypeChart() {
         </Pie>
         <Tooltip
           contentStyle={{ borderRadius: 12, fontSize: 12, border: "1px solid #e2e8f0" }}
-          formatter={(value: number, _name: string, props) => [
-            `${value} cuentas — ${formatCurrency(props.payload.totalBalance, "PEN")}`,
-            props.payload.name,
-          ]}
+          formatter={(value, _name, item) => {
+            const p = (item as { payload: { totalBalance: number; name: string } }).payload;
+            return [`${Number(value)} cuentas — ${formatCurrency(p.totalBalance, "PEN")}`, p.name] as [string, string];
+          }}
         />
         <Legend
           iconType="circle"

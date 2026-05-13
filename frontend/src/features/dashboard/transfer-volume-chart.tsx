@@ -61,7 +61,7 @@ export function TransferVolumeChart() {
         />
         <Tooltip
           contentStyle={{ borderRadius: 12, fontSize: 12, border: "1px solid #e2e8f0" }}
-          formatter={(value: number) => [formatCurrency(value, "PEN"), "Volumen"]}
+          formatter={(value) => [formatCurrency(Number(value), "PEN"), "Volumen"] as [string, string]}
         />
         <Area
           type="monotone"
