@@ -87,7 +87,15 @@ public class TransferServiceImpl implements TransferService {
         AccountResponse origen  = accountService.findById(request.getCuentaOrigenId());
         AccountResponse destino = accountService.findById(request.getCuentaDestinoId());
 
-        // 3. Daily limit enforcement
+        // 3. Currency match guard — cross-currency transfers require a forex module
+        if (!origen.getMoneda().equals(destino.getMoneda())) {
+            throw new BusinessException(ErrorCode.BUSINESS_RULE_VIOLATION,
+                    String.format("No se permiten transferencias entre monedas distintas (%s → %s). " +
+                            "Ambas cuentas deben operar en la misma moneda.",
+                            origen.getMoneda(), destino.getMoneda()));
+        }
+
+        // 4. Daily limit enforcement
         BigDecimal dailyTotal = transferRepository.sumCompletedTransfersByAccountAndDate(
                 request.getCuentaOrigenId(), LocalDate.now().atStartOfDay());
         BigDecimal remaining = dailyLimit.subtract(dailyTotal);

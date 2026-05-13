@@ -3,7 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2, ArrowRight } from "lucide-react";
+import { Loader2, ArrowRight, AlertTriangle } from "lucide-react";
 import { useCreateTransfer } from "@/hooks/use-transfers";
 import { useAccounts } from "@/hooks/use-accounts";
 import { formatCurrency } from "@/lib/utils";
@@ -42,6 +42,7 @@ export function TransferForm({ onSuccess }: { onSuccess?: () => void }) {
 
   const origenAccount  = activeAccounts.find((a) => a.id === origenId);
   const destinoAccount = activeAccounts.find((a) => a.id === destinoId);
+  const currencyMismatch = !!(origenAccount && destinoAccount && origenAccount.moneda !== destinoAccount.moneda);
 
   const onSubmit = (data: FormData) => {
     create(
@@ -105,6 +106,14 @@ export function TransferForm({ onSuccess }: { onSuccess?: () => void }) {
         {destinoAccount && (
           <AccountPreview account={destinoAccount} label="Saldo actual" />
         )}
+        {currencyMismatch && (
+          <div className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-3 dark:border-red-800 dark:bg-red-900/20">
+            <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-red-500" />
+            <p className="text-xs text-red-600 dark:text-red-400">
+              Las cuentas tienen monedas distintas ({origenAccount!.moneda} → {destinoAccount!.moneda}). No se permiten transferencias entre monedas diferentes.
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Amount */}
@@ -147,7 +156,7 @@ export function TransferForm({ onSuccess }: { onSuccess?: () => void }) {
 
       <button
         type="submit"
-        disabled={isPending}
+        disabled={isPending || currencyMismatch}
         className="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 py-3 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-60"
       >
         {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
