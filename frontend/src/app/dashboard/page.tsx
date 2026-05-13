@@ -8,11 +8,20 @@ import {
   TrendingUp,
   Activity,
 } from "lucide-react";
+import dynamic from "next/dynamic";
 import { KpiCard } from "@/features/dashboard/kpi-card";
-import { TransferVolumeChart } from "@/features/dashboard/transfer-volume-chart";
-import { AccountTypeChart } from "@/features/dashboard/account-type-chart";
 import { useDashboardSummary } from "@/hooks/use-dashboard";
 import { formatCurrency } from "@/lib/utils";
+
+const TransferVolumeChart = dynamic(
+  () => import("@/features/dashboard/transfer-volume-chart").then((m) => m.TransferVolumeChart),
+  { ssr: false }
+);
+
+const AccountTypeChart = dynamic(
+  () => import("@/features/dashboard/account-type-chart").then((m) => m.AccountTypeChart),
+  { ssr: false }
+);
 
 export default function DashboardPage() {
   const { data: summary, isLoading } = useDashboardSummary();
