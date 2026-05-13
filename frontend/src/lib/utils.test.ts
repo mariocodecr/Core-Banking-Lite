@@ -46,20 +46,23 @@ describe("formatCurrency", () => {
 
 describe("formatDate", () => {
   it("formats a date string to DD/MM/YYYY", () => {
-    const result = formatDate("2024-06-15");
+    // Use midday local time to avoid UTC midnight rollover across timezones
+    const result = formatDate("2024-06-15T12:00:00");
     expect(result).toContain("15");
     expect(result).toContain("06");
     expect(result).toContain("2024");
   });
 
   it("accepts a Date object", () => {
-    const result = formatDate(new Date("2024-01-01T00:00:00Z"));
+    // Use midday local time to avoid UTC midnight rollover across timezones
+    const result = formatDate(new Date("2024-01-15T12:00:00"));
     expect(result).toContain("2024");
   });
 });
 
 describe("formatDateTime", () => {
   it("includes both date and time components", () => {
+    // Local time string — no Z suffix so no timezone conversion applies
     const result = formatDateTime("2024-06-15T14:30:00");
     expect(result).toContain("2024");
     expect(result).toContain("14");
