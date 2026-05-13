@@ -95,7 +95,7 @@ export function TransferForm({ onSuccess }: { onSuccess?: () => void }) {
           <option value="">Seleccioná la cuenta de destino</option>
           {activeAccounts.map((a) => (
             <option key={a.id} value={a.id} disabled={a.id === origenId}>
-              {a.numeroCuenta} — {a.nombreCliente}
+              {a.numeroCuenta} — {a.nombreCliente} ({a.moneda} {a.saldo.toLocaleString("es-CR", { minimumFractionDigits: 2 })})
             </option>
           ))}
         </select>
