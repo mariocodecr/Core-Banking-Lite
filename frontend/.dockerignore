@@ -1,0 +1,16 @@
+.next/
+node_modules/
+out/
+
+.git/
+.github/
+*.md
+
+.env
+.env.*
+!.env.example
+
+src/**/*.test.ts
+src/**/*.test.tsx
+src/test/
+vitest.config.ts
