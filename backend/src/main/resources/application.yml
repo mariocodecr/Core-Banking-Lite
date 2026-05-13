@@ -46,18 +46,28 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics
+        include: health,info,metrics,loggers
   endpoint:
     health:
       show-details: when-authorized
+    loggers:
+      enabled: true
+  info:
+    build:
+      enabled: true
+    env:
+      enabled: true
+
+info:
+  app:
+    name: Core Banking Lite
+    description: Enterprise Banking System — REST API
+    version: "@project.version@"
 
 logging:
   level:
     root: INFO
     com.corebanking: INFO
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{correlationId}] %logger{36} - %msg%n"
-    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{correlationId}] %logger{36} - %msg%n"
 
 springdoc:
   api-docs:
