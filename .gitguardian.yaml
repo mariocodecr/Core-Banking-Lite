@@ -1,0 +1,8 @@
+version: 2
+
+# Ignore Spring Boot configuration files that contain placeholder/test credentials.
+# Real secrets must always be provided via environment variables.
+ignore-paths:
+  - backend/src/main/resources/application.yml
+  - backend/src/main/resources/application-dev.yml
+  - backend/src/test/resources/application-integration-test.yml
