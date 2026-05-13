@@ -3,7 +3,6 @@ package com.corebanking.filter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
-import io.github.bucket4j.Refill;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -58,7 +57,10 @@ public class RateLimitFilter extends OncePerRequestFilter {
 
     private Bucket newBucket(String ip) {
         return Bucket.builder()
-                .addLimit(Bandwidth.classic(CAPACITY, Refill.greedy(CAPACITY, REFILL_PERIOD)))
+                .addLimit(Bandwidth.builder()
+                        .capacity(CAPACITY)
+                        .refillGreedy(CAPACITY, REFILL_PERIOD)
+                        .build())
                 .build();
     }
 

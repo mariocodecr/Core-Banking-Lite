@@ -29,7 +29,7 @@ val jjwtVersion = "0.12.6"
 val springdocVersion = "2.6.0"
 val lombokMapstructBindingVersion = "0.2.0"
 val logstashEncoderVersion = "8.0"
-val bucket4jVersion = "8.10.1"
+val bucket4jVersion = "8.7.0"
 
 dependencies {
     // Spring Boot starters
@@ -42,7 +42,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
 
     // Rate limiting
-    implementation("com.github.bucket4j:bucket4j-core:$bucket4jVersion")
+    implementation("com.bucket4j:bucket4j-core:$bucket4jVersion")
 
     // Structured JSON logging (production)
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashEncoderVersion")
