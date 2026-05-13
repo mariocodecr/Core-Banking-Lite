@@ -9,8 +9,11 @@ import com.corebanking.modules.dashboard.dto.DailyTransferStatResponse;
 import com.corebanking.modules.dashboard.dto.DashboardSummaryResponse;
 import com.corebanking.modules.transfer.repository.TransferRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static com.corebanking.config.CacheConfig.CACHE_DASHBOARD_SUMMARY;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -26,6 +29,7 @@ public class DashboardServiceImpl implements DashboardService {
     private final TransferRepository transferRepository;
 
     @Override
+    @Cacheable(CACHE_DASHBOARD_SUMMARY)
     @Transactional(readOnly = true)
     public DashboardSummaryResponse getSummary() {
         LocalDateTime startOfToday   = LocalDate.now().atStartOfDay();
