@@ -14,9 +14,13 @@ import com.corebanking.modules.customer.repository.CustomerSpecification;
 import com.corebanking.shared.PagedResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static com.corebanking.config.CacheConfig.CACHE_CUSTOMERS;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -38,6 +42,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    @Cacheable(value = CACHE_CUSTOMERS, key = "#id")
     @Transactional(readOnly = true)
     public CustomerResponse findById(UUID id) {
         return customerMapper.toResponse(findCustomerById(id));
@@ -57,6 +62,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    @CacheEvict(value = CACHE_CUSTOMERS, key = "#id")
     @Transactional
     public CustomerResponse update(UUID id, CustomerRequest request) {
         Customer customer = findCustomerById(id);
@@ -72,6 +78,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    @CacheEvict(value = CACHE_CUSTOMERS, key = "#id")
     @Transactional
     public void delete(UUID id) {
         Customer customer = findCustomerById(id);
@@ -82,6 +89,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    @CacheEvict(value = CACHE_CUSTOMERS, key = "#id")
     @Transactional
     public CustomerResponse updateStatus(UUID id, CustomerStatus status) {
         Customer customer = findCustomerById(id);
