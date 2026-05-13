@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import dynamic from "next/dynamic";
 import { KpiCard } from "@/features/dashboard/kpi-card";
+import { ExchangeRateCard } from "@/features/dashboard/exchange-rate-card";
 import { useDashboardSummary } from "@/hooks/use-dashboard";
 import { formatCurrency } from "@/lib/utils";
 
@@ -105,13 +106,17 @@ export default function DashboardPage() {
           <TransferVolumeChart />
         </div>
 
-        {/* Account distribution — takes 1/3 */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
-          <p className="mb-1 text-sm font-semibold text-slate-700 dark:text-slate-200">
-            Distribución de cuentas
-          </p>
-          <p className="mb-4 text-xs text-slate-500">Por tipo (excluye CERRADAS)</p>
-          <AccountTypeChart />
+        {/* Right column — account distribution + exchange rates */}
+        <div className="space-y-6">
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
+            <p className="mb-1 text-sm font-semibold text-slate-700 dark:text-slate-200">
+              Distribución de cuentas
+            </p>
+            <p className="mb-4 text-xs text-slate-500">Por tipo (excluye CERRADAS)</p>
+            <AccountTypeChart />
+          </div>
+
+          <ExchangeRateCard />
         </div>
       </div>
     </div>
