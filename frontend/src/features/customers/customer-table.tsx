@@ -14,7 +14,7 @@ const DOC_LABEL: Record<string, string> = {
 
 interface Props {
   customers: Customer[];
-  onEdit: (customer: Customer) => void;
+  onEdit?: (customer: Customer) => void;
 }
 
 export function CustomerTable({ customers, onEdit }: Props) {
@@ -98,11 +98,13 @@ export function CustomerTable({ customers, onEdit }: Props) {
               {/* Acciones */}
               <td className="px-4 py-3.5">
                 <div className="flex items-center justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                  <ActionButton
-                    label="Editar"
-                    onClick={() => onEdit(c)}
-                    icon={<Pencil className="h-3.5 w-3.5" />}
-                  />
+                  {onEdit && (
+                    <ActionButton
+                      label="Editar"
+                      onClick={() => onEdit(c)}
+                      icon={<Pencil className="h-3.5 w-3.5" />}
+                    />
+                  )}
                   <ActionButton
                     label="Eliminar"
                     onClick={() => handleDelete(c)}
