@@ -36,7 +36,7 @@ public class TransferServiceImpl implements TransferService {
     private final AccountService      accountService;
     private final AccountRepository   accountRepository;
 
-    @Value("${app.transfers.daily-limit:50000.00}")
+    @Value("${app.transfers.daily-limit:500000.00}")
     private BigDecimal dailyLimit;
 
     // ─── Queries ──────────────────────────────────────────────────────────────

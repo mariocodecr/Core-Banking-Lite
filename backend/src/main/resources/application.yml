@@ -97,4 +97,4 @@ app:
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000}
   transfers:
-    daily-limit: ${TRANSFER_DAILY_LIMIT:50000.00}
+    daily-limit: ${TRANSFER_DAILY_LIMIT:500000.00}
