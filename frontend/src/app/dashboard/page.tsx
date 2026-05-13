@@ -1,14 +1,103 @@
-import type { Metadata } from "next";
+"use client";
 
-export const metadata: Metadata = { title: "Dashboard" };
+import {
+  Users,
+  CreditCard,
+  ArrowLeftRight,
+  Banknote,
+  TrendingUp,
+  Activity,
+} from "lucide-react";
+import { KpiCard } from "@/features/dashboard/kpi-card";
+import { TransferVolumeChart } from "@/features/dashboard/transfer-volume-chart";
+import { AccountTypeChart } from "@/features/dashboard/account-type-chart";
+import { useDashboardSummary } from "@/hooks/use-dashboard";
+import { formatCurrency } from "@/lib/utils";
 
 export default function DashboardPage() {
+  const { data: summary, isLoading } = useDashboardSummary();
+
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Dashboard financiero</h1>
-      <p className="mt-2 text-sm text-slate-500">
-        Los KPIs y gráficos se implementan en la Fase 6.
-      </p>
+    <div className="space-y-6 p-6">
+      {/* Header */}
+      <div>
+        <h1 className="text-xl font-bold text-slate-900 dark:text-white">Dashboard financiero</h1>
+        <p className="mt-0.5 text-xs text-slate-500">Resumen operativo en tiempo real</p>
+      </div>
+
+      {/* KPI Grid */}
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <KpiCard
+          label="Clientes activos"
+          value={summary?.activeCustomers ?? "—"}
+          sub={summary ? `de ${summary.totalCustomers} totales` : undefined}
+          icon={Users}
+          color="blue"
+          isLoading={isLoading}
+        />
+        <KpiCard
+          label="Cuentas activas"
+          value={summary?.totalAccounts ?? "—"}
+          icon={CreditCard}
+          color="emerald"
+          isLoading={isLoading}
+        />
+        <KpiCard
+          label="Transferencias hoy"
+          value={summary?.totalTransfersToday ?? "—"}
+          sub={summary ? formatCurrency(summary.transferVolumeToday, "PEN") : undefined}
+          icon={ArrowLeftRight}
+          color="violet"
+          isLoading={isLoading}
+        />
+        <KpiCard
+          label="Transferencias este mes"
+          value={summary?.totalTransfersThisMonth ?? "—"}
+          sub={summary ? formatCurrency(summary.transferVolumeThisMonth, "PEN") : undefined}
+          icon={TrendingUp}
+          color="amber"
+          isLoading={isLoading}
+        />
+      </div>
+
+      {/* Balance KPIs */}
+      <div className="grid grid-cols-2 gap-4">
+        <KpiCard
+          label="Saldo total PEN"
+          value={summary ? formatCurrency(summary.totalBalancePEN, "PEN") : "—"}
+          icon={Banknote}
+          color="emerald"
+          isLoading={isLoading}
+        />
+        <KpiCard
+          label="Saldo total USD"
+          value={summary ? formatCurrency(summary.totalBalanceUSD, "USD") : "—"}
+          icon={Activity}
+          color="blue"
+          isLoading={isLoading}
+        />
+      </div>
+
+      {/* Charts */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        {/* Transfer volume — takes 2/3 */}
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900 lg:col-span-2">
+          <p className="mb-1 text-sm font-semibold text-slate-700 dark:text-slate-200">
+            Volumen de transferencias — últimos 30 días
+          </p>
+          <p className="mb-4 text-xs text-slate-500">Solo transferencias COMPLETADAS</p>
+          <TransferVolumeChart />
+        </div>
+
+        {/* Account distribution — takes 1/3 */}
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
+          <p className="mb-1 text-sm font-semibold text-slate-700 dark:text-slate-200">
+            Distribución de cuentas
+          </p>
+          <p className="mb-4 text-xs text-slate-500">Por tipo (excluye CERRADAS)</p>
+          <AccountTypeChart />
+        </div>
+      </div>
     </div>
   );
 }
