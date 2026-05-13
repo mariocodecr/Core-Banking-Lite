@@ -6,7 +6,7 @@ import type { Account, AccountStatus, AccountType } from "@/types/account.types"
 
 const TYPE_CONFIG: Record<AccountType, { label: string; gradient: string; textMuted: string }> = {
   AHORROS:   { label: "Cuenta de Ahorros",  gradient: "from-blue-600 to-blue-800",    textMuted: "text-blue-200" },
-  CTS:       { label: "CTS",                 gradient: "from-emerald-600 to-emerald-800", textMuted: "text-emerald-200" },
+  EMPRESARIAL: { label: "Cuenta Empresarial", gradient: "from-emerald-600 to-emerald-800", textMuted: "text-emerald-200" },
   CORRIENTE: { label: "Cuenta Corriente",    gradient: "from-slate-600 to-slate-800",  textMuted: "text-slate-300" },
 };
 

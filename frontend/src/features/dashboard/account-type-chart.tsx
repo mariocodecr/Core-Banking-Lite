@@ -6,13 +6,13 @@ import { formatCurrency } from "@/lib/utils";
 
 const COLORS: Record<string, string> = {
   AHORROS:   "#2563eb",
-  CTS:       "#10b981",
+  EMPRESARIAL: "#10b981",
   CORRIENTE: "#64748b",
 };
 
 const LABEL: Record<string, string> = {
   AHORROS:   "Ahorros",
-  CTS:       "CTS",
+  EMPRESARIAL: "Empresarial",
   CORRIENTE: "Corriente",
 };
 

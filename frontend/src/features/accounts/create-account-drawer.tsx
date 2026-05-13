@@ -12,13 +12,13 @@ import type { Customer } from "@/types/customer.types";
 
 const ACCOUNT_TYPES: { value: AccountType; label: string }[] = [
   { value: "AHORROS",   label: "Cuenta de Ahorros" },
-  { value: "CTS",       label: "CTS" },
+  { value: "EMPRESARIAL", label: "Empresarial" },
   { value: "CORRIENTE", label: "Cuenta Corriente" },
 ];
 
 const schema = z.object({
   customerId:   z.string().uuid("Buscá un cliente por documento primero"),
-  tipo:         z.enum(["AHORROS", "CTS", "CORRIENTE"] as const),
+  tipo:         z.enum(["AHORROS", "EMPRESARIAL", "CORRIENTE"] as const),
   moneda:       z.string(),
   saldoInicial: z.coerce.number().min(0, "No puede ser negativo").optional(),
 });

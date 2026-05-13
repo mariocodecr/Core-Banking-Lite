@@ -79,7 +79,7 @@ export default function AccountsPage() {
 
         {/* Filter tabs */}
         <div className="flex gap-1.5">
-          {(["", "AHORROS", "CTS", "CORRIENTE"] as const).map((tipo) => (
+          {(["", "AHORROS", "EMPRESARIAL", "CORRIENTE"] as const).map((tipo) => (
             <button
               key={tipo}
               onClick={() => setFilters((p) => ({ ...p, tipo: tipo || undefined, page: 0 }))}

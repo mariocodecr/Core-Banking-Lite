@@ -203,7 +203,7 @@ public class AccountServiceImpl implements AccountService {
     private String generateUniqueAccountNumber(AccountType tipo) {
         String prefix = switch (tipo) {
             case AHORROS   -> "AHO";
-            case CTS       -> "CTS";
+            case EMPRESARIAL -> "EMP";
             case CORRIENTE -> "COR";
         };
         String numero;

@@ -44,7 +44,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: ROUTES.CUSTOMERS,  label: "Clientes",       icon: Users,           roles: ["ADMIN", "ADVISOR", "AUDITOR"] },
   { href: ROUTES.ACCOUNTS,   label: "Cuentas",        icon: CreditCard,      roles: ["ADMIN", "ADVISOR", "AUDITOR", "CLIENT"] },
   { href: ROUTES.TRANSFERS,  label: "Transferencias", icon: ArrowLeftRight,  roles: ["ADMIN", "ADVISOR", "AUDITOR", "CLIENT"] },
-  { href: ROUTES.SAVINGS,    label: "Ahorros / CTS",  icon: PiggyBank,       roles: ["ADMIN", "ADVISOR", "AUDITOR"] },
+  { href: ROUTES.SAVINGS,    label: "Ahorros",         icon: PiggyBank,       roles: ["ADMIN", "ADVISOR", "AUDITOR"] },
   { href: ROUTES.AUDIT,      label: "Auditoría",      icon: ClipboardList,   roles: ["ADMIN", "ADVISOR", "AUDITOR"] },
 ];
 

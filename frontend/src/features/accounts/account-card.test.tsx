@@ -60,10 +60,10 @@ describe("AccountCard", () => {
     expect(container.querySelector(".ring-2")).toBeInTheDocument();
   });
 
-  it("renders CTS account type label", () => {
-    const cts = { ...baseAccount, tipo: "CTS" as const };
-    render(<AccountCard account={cts} />);
-    expect(screen.getByText("CTS")).toBeInTheDocument();
+  it("renders EMPRESARIAL account type label", () => {
+    const emp = { ...baseAccount, tipo: "EMPRESARIAL" as const };
+    render(<AccountCard account={emp} />);
+    expect(screen.getByText("Cuenta Empresarial")).toBeInTheDocument();
   });
 
   it("renders CORRIENTE account type label", () => {

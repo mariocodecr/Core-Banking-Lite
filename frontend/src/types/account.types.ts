@@ -1,6 +1,6 @@
 import type { PaginationParams } from "@/types";
 
-export type AccountType   = "AHORROS" | "CTS" | "CORRIENTE";
+export type AccountType   = "AHORROS" | "EMPRESARIAL" | "CORRIENTE";
 export type AccountStatus = "ACTIVA" | "CONGELADA" | "CERRADA";
 export type MovementType  = "DEPOSITO" | "RETIRO" | "TRANSFERENCIA_ENTRADA" | "TRANSFERENCIA_SALIDA";
 
