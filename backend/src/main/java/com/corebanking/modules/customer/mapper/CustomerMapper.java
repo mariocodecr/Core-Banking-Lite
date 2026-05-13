@@ -8,7 +8,7 @@ import org.mapstruct.*;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", imports = {CustomerStatus.class})
 public interface CustomerMapper {
 
     CustomerResponse toResponse(Customer customer);
