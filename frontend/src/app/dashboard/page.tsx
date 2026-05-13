@@ -73,21 +73,21 @@ export default function DashboardPage() {
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
         <KpiCard
           label="Saldo total USD"
-          value={summary ? formatCurrency(summary.totalBalanceUSD, "USD") : "—"}
+          value={summary ? formatCurrency(summary.totalBalanceUSD ?? 0, "USD") : "—"}
           icon={Banknote}
           color="emerald"
           isLoading={isLoading}
         />
         <KpiCard
           label="Saldo total CRC"
-          value={summary ? formatCurrency(summary.totalBalanceCRC, "CRC") : "—"}
+          value={summary ? formatCurrency(summary.totalBalanceCRC ?? 0, "CRC") : "—"}
           icon={Banknote}
           color="amber"
           isLoading={isLoading}
         />
         <KpiCard
           label="Saldo total EUR"
-          value={summary ? formatCurrency(summary.totalBalanceEUR, "EUR") : "—"}
+          value={summary ? formatCurrency(summary.totalBalanceEUR ?? 0, "EUR") : "—"}
           icon={Activity}
           color="blue"
           isLoading={isLoading}
