@@ -4,6 +4,10 @@ spring:
       ddl-auto: update
     show-sql: true
 
+app:
+  jwt:
+    secret: ${JWT_SECRET:dev-only-jwt-secret-change-before-going-to-production}
+
 logging:
   level:
     com.corebanking: DEBUG
