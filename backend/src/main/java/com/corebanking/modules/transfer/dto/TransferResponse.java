@@ -22,6 +22,9 @@ public class TransferResponse {
 
     private BigDecimal monto;
     private String moneda;
+    private BigDecimal montoDestino;
+    private String monedaDestino;
+    private BigDecimal tasaCambio;
     private String descripcion;
     private TransferStatus estado;
 

@@ -48,11 +48,23 @@ public class Transfer extends AuditableEntity {
     @JoinColumn(name = "cuenta_destino_id", nullable = false)
     private Account cuentaDestino;
 
+    /** Amount debited from the origin account (in origin currency). */
     @Column(name = "monto", nullable = false, precision = 19, scale = 4)
     private BigDecimal monto;
 
     @Column(name = "moneda", nullable = false, length = 3)
     private String moneda;
+
+    /** Amount credited to the destination account (in destination currency). */
+    @Column(name = "monto_destino", precision = 19, scale = 4)
+    private BigDecimal montoDestino;
+
+    @Column(name = "moneda_destino", length = 3)
+    private String monedaDestino;
+
+    /** Exchange rate applied: 1 unit of moneda = tasaCambio units of monedaDestino. */
+    @Column(name = "tasa_cambio", precision = 19, scale = 6)
+    private BigDecimal tasaCambio;
 
     @Column(name = "descripcion", nullable = false, length = 255)
     private String descripcion;

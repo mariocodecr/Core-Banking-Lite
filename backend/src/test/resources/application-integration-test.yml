@@ -22,6 +22,8 @@ app:
     allowed-origins: http://localhost:3000
   transfers:
     daily-limit: 500000.00
+  bccr:
+    enabled: false
 
 logging:
   level:

@@ -3,9 +3,10 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2, ArrowRight, AlertTriangle } from "lucide-react";
+import { Loader2, ArrowRight, ArrowLeftRight } from "lucide-react";
 import { useCreateTransfer } from "@/hooks/use-transfers";
 import { useAccounts } from "@/hooks/use-accounts";
+import { useExchangeRate } from "@/hooks/use-exchange-rate";
 import { formatCurrency } from "@/lib/utils";
 import type { Account } from "@/types/account.types";
 
@@ -39,10 +40,20 @@ export function TransferForm({ onSuccess }: { onSuccess?: () => void }) {
 
   const origenId  = watch("cuentaOrigenId");
   const destinoId = watch("cuentaDestinoId");
+  const monto     = watch("monto");
 
   const origenAccount  = activeAccounts.find((a) => a.id === origenId);
   const destinoAccount = activeAccounts.find((a) => a.id === destinoId);
-  const currencyMismatch = !!(origenAccount && destinoAccount && origenAccount.moneda !== destinoAccount.moneda);
+
+  const monedaOrigen  = origenAccount?.moneda;
+  const monedaDestino = destinoAccount?.moneda;
+  const isCrossCurrency = !!(monedaOrigen && monedaDestino && monedaOrigen !== monedaDestino);
+
+  const { data: rateData, isLoading: isLoadingRate } = useExchangeRate(monedaOrigen, monedaDestino);
+
+  const montoDestino = rateData && monto > 0
+    ? (monto * rateData.rate).toFixed(2)
+    : null;
 
   const onSubmit = (data: FormData) => {
     create(
@@ -106,12 +117,31 @@ export function TransferForm({ onSuccess }: { onSuccess?: () => void }) {
         {destinoAccount && (
           <AccountPreview account={destinoAccount} label="Saldo actual" />
         )}
-        {currencyMismatch && (
-          <div className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-3 dark:border-red-800 dark:bg-red-900/20">
-            <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-red-500" />
-            <p className="text-xs text-red-600 dark:text-red-400">
-              Las cuentas tienen monedas distintas ({origenAccount!.moneda} → {destinoAccount!.moneda}). No se permiten transferencias entre monedas diferentes.
-            </p>
+
+        {/* Cross-currency rate indicator */}
+        {isCrossCurrency && (
+          <div className="flex items-start gap-2 rounded-xl border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-900/20">
+            <ArrowLeftRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-blue-500" />
+            <div className="text-xs text-blue-700 dark:text-blue-300">
+              {isLoadingRate ? (
+                <span className="flex items-center gap-1">
+                  <Loader2 className="h-3 w-3 animate-spin" /> Obteniendo tipo de cambio BCCR...
+                </span>
+              ) : rateData ? (
+                <>
+                  <p className="font-semibold">
+                    1 {monedaOrigen} = {rateData.rate.toFixed(4)} {monedaDestino}
+                  </p>
+                  {montoDestino && (
+                    <p className="mt-0.5 text-blue-600 dark:text-blue-400">
+                      El destinatario recibirá ≈ {monedaDestino} {Number(montoDestino).toLocaleString("es-CR", { minimumFractionDigits: 2 })}
+                    </p>
+                  )}
+                </>
+              ) : (
+                <span>Tipo de cambio no disponible</span>
+              )}
+            </div>
           </div>
         )}
       </div>
@@ -156,7 +186,7 @@ export function TransferForm({ onSuccess }: { onSuccess?: () => void }) {
 
       <button
         type="submit"
-        disabled={isPending || currencyMismatch}
+        disabled={isPending || (isCrossCurrency && isLoadingRate)}
         className="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 py-3 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-60"
       >
         {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
@@ -164,7 +194,7 @@ export function TransferForm({ onSuccess }: { onSuccess?: () => void }) {
       </button>
 
       <p className="text-center text-[10px] text-slate-400">
-        Límite diario: 50,000.00 · La transferencia es inmediata e irreversible
+        Límite diario: 500,000.00 CRC · Tipos de cambio: BCCR
       </p>
     </form>
   );

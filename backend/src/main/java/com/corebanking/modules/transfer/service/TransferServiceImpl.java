@@ -7,6 +7,7 @@ import com.corebanking.modules.account.dto.AccountResponse;
 import com.corebanking.modules.account.entity.MovementType;
 import com.corebanking.modules.account.repository.AccountRepository;
 import com.corebanking.modules.account.service.AccountService;
+import com.corebanking.modules.exchangerate.service.ExchangeRateService;
 import com.corebanking.modules.transfer.dto.CreateTransferRequest;
 import com.corebanking.modules.transfer.dto.TransferResponse;
 import com.corebanking.modules.transfer.entity.Transfer;
@@ -35,6 +36,7 @@ public class TransferServiceImpl implements TransferService {
     private final TransferMapper      transferMapper;
     private final AccountService      accountService;
     private final AccountRepository   accountRepository;
+    private final ExchangeRateService exchangeRateService;
 
     @Value("${app.transfers.daily-limit:500000.00}")
     private BigDecimal dailyLimit;
@@ -87,40 +89,43 @@ public class TransferServiceImpl implements TransferService {
         AccountResponse origen  = accountService.findById(request.getCuentaOrigenId());
         AccountResponse destino = accountService.findById(request.getCuentaDestinoId());
 
-        // 3. Currency match guard — cross-currency transfers require a forex module
-        if (!origen.getMoneda().equals(destino.getMoneda())) {
-            throw new BusinessException(ErrorCode.BUSINESS_RULE_VIOLATION,
-                    String.format("No se permiten transferencias entre monedas distintas (%s → %s). " +
-                            "Ambas cuentas deben operar en la misma moneda.",
-                            origen.getMoneda(), destino.getMoneda()));
-        }
+        // 3. Resolve exchange rate (1.0 if same currency, BCCR rate otherwise)
+        String monedaOrigen  = origen.getMoneda();
+        String monedaDestino = destino.getMoneda();
+        BigDecimal tasaCambio  = exchangeRateService.getRate(monedaOrigen, monedaDestino);
+        BigDecimal montoDestino = exchangeRateService.convert(request.getMonto(), monedaOrigen, monedaDestino);
 
-        // 4. Daily limit enforcement
+        // 4. Daily limit enforcement (evaluated in origin currency)
         BigDecimal dailyTotal = transferRepository.sumCompletedTransfersByAccountAndDate(
                 request.getCuentaOrigenId(), LocalDate.now().atStartOfDay());
         BigDecimal remaining = dailyLimit.subtract(dailyTotal);
         if (request.getMonto().compareTo(remaining) > 0) {
             throw new BusinessException(ErrorCode.DAILY_LIMIT_EXCEEDED,
                     String.format("Límite diario de transferencias superado. Monto disponible hoy: %s %s",
-                            origen.getMoneda(), remaining.toPlainString()));
+                            monedaOrigen, remaining.toPlainString()));
         }
 
-        // 4. Generate audit reference linking both movements to this transfer
+        // 5. Generate audit reference linking both movements to this transfer
         String referencia = "TRF-" + UUID.randomUUID().toString().replace("-", "").substring(0, 12).toUpperCase();
 
-        // 5. Atomic debit → credit (both join this @Transactional via REQUIRED propagation)
-        String descDebit  = "Transferencia a "    + destino.getNumeroCuenta() + ": " + request.getDescripcion();
-        String descCredit = "Transferencia de "   + origen.getNumeroCuenta()  + ": " + request.getDescripcion();
+        // 6. Atomic debit → credit (both join this @Transactional via REQUIRED propagation)
+        String rateInfo   = monedaOrigen.equals(monedaDestino) ? "" :
+                String.format(" [TC: 1 %s = %.4f %s]", monedaOrigen, tasaCambio, monedaDestino);
+        String descDebit  = "Transferencia a "  + destino.getNumeroCuenta() + ": " + request.getDescripcion() + rateInfo;
+        String descCredit = "Transferencia de " + origen.getNumeroCuenta()  + ": " + request.getDescripcion() + rateInfo;
 
-        accountService.debit(request.getCuentaOrigenId(),  request.getMonto(), descDebit,  referencia, MovementType.TRANSFERENCIA_SALIDA);
-        accountService.credit(request.getCuentaDestinoId(), request.getMonto(), descCredit, referencia, MovementType.TRANSFERENCIA_ENTRADA);
+        accountService.debit(request.getCuentaOrigenId(),  request.getMonto(), descDebit,   referencia, MovementType.TRANSFERENCIA_SALIDA);
+        accountService.credit(request.getCuentaDestinoId(), montoDestino,      descCredit,  referencia, MovementType.TRANSFERENCIA_ENTRADA);
 
-        // 6. Persist transfer record
+        // 7. Persist transfer record
         Transfer transfer = new Transfer();
         transfer.setCuentaOrigen(accountRepository.getReferenceById(request.getCuentaOrigenId()));
         transfer.setCuentaDestino(accountRepository.getReferenceById(request.getCuentaDestinoId()));
         transfer.setMonto(request.getMonto());
-        transfer.setMoneda(origen.getMoneda());
+        transfer.setMoneda(monedaOrigen);
+        transfer.setMontoDestino(montoDestino);
+        transfer.setMonedaDestino(monedaDestino);
+        transfer.setTasaCambio(tasaCambio);
         transfer.setDescripcion(request.getDescripcion());
         transfer.setEstado(TransferStatus.COMPLETADA);
         transfer.setIdempotencyKey(request.getIdempotencyKey());
@@ -129,9 +134,9 @@ public class TransferServiceImpl implements TransferService {
 
         Transfer saved = transferRepository.save(transfer);
 
-        log.info("Transfer completed: referencia={}, origen={}, destino={}, monto={} {}",
+        log.info("Transfer completed: referencia={}, origen={}, destino={}, monto={} {}, montoDestino={} {}, tasaCambio={}",
                 referencia, origen.getNumeroCuenta(), destino.getNumeroCuenta(),
-                request.getMonto(), origen.getMoneda());
+                request.getMonto(), monedaOrigen, montoDestino, monedaDestino, tasaCambio);
 
         return transferMapper.toResponse(saved);
     }
