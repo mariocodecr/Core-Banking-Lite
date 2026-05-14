@@ -24,6 +24,9 @@ app:
     daily-limit: 500000.00
   bccr:
     enabled: false
+  alpha-vantage:
+    api-key: test-dummy-key
+    enabled: false
 
 logging:
   level:
