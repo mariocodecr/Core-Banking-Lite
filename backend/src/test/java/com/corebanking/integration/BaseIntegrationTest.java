@@ -70,15 +70,17 @@ public abstract class BaseIntegrationTest {
     }
 
     protected Customer seedCustomer(String nombres, String documento) {
-        Customer c = new Customer();
-        c.setNombres(nombres);
-        c.setApellidos("Integration");
-        c.setEmail(nombres.toLowerCase() + "@test.com");
-        c.setTipoDocumento(DocumentType.DNI);
-        c.setNumeroDocumento(documento);
-        c.setFechaNacimiento(LocalDate.of(1990, 1, 1));
-        c.setEstado(CustomerStatus.ACTIVO);
-        return customerRepository.save(c);
+        return customerRepository.findByNumeroDocumento(documento).orElseGet(() -> {
+            Customer c = new Customer();
+            c.setNombres(nombres);
+            c.setApellidos("Integration");
+            c.setEmail(nombres.toLowerCase() + "@test.com");
+            c.setTipoDocumento(DocumentType.DNI);
+            c.setNumeroDocumento(documento);
+            c.setFechaNacimiento(LocalDate.of(1990, 1, 1));
+            c.setEstado(CustomerStatus.ACTIVO);
+            return customerRepository.save(c);
+        });
     }
 
     // ─── Auth helper ──────────────────────────────────────────────────────────
