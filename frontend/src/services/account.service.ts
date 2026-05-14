@@ -20,6 +20,11 @@ export const accountService = {
     return data;
   },
 
+  findMine: async (): Promise<Account[]> => {
+    const { data } = await apiClient.get<Account[]>(`${BASE}/me`);
+    return data;
+  },
+
   findByCustomerId: async (customerId: string): Promise<Account[]> => {
     const { data } = await apiClient.get<Account[]>(`${BASE}/customer/${customerId}`);
     return data;

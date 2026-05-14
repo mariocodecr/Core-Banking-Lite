@@ -23,4 +23,6 @@ public interface TransferService {
     TransferResponse findById(UUID id);
 
     PagedResponse<TransferResponse> findAll(Pageable pageable);
+
+    PagedResponse<TransferResponse> findByUserEmail(String email, Pageable pageable);
 }

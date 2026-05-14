@@ -9,6 +9,9 @@ export const transferService = {
   getById: (id: string) =>
     api.get<Transfer>(`/v1/transfers/${id}`),
 
+  getMine: (params?: { page?: number; size?: number }) =>
+    api.get<PagedResponse<Transfer>>("/v1/transfers/me", { params }),
+
   create: (data: CreateTransferRequest) =>
     api.post<Transfer>("/v1/transfers", data),
 };

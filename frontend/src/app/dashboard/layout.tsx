@@ -8,6 +8,7 @@ import {
   CreditCard,
   ArrowLeftRight,
   PiggyBank,
+  TrendingUp,
   ClipboardList,
   ShieldCheck,
   LogOut,
@@ -40,12 +41,13 @@ type NavItem = {
 };
 
 const NAV_ITEMS: NavItem[] = [
-  { href: ROUTES.DASHBOARD,  label: "Dashboard",      icon: LayoutDashboard, roles: ["ADMIN", "ADVISOR", "AUDITOR"] },
+  { href: ROUTES.DASHBOARD,  label: "Dashboard",      icon: LayoutDashboard, roles: ["ADMIN", "ADVISOR", "AUDITOR", "CLIENT"] },
   { href: ROUTES.CUSTOMERS,  label: "Clientes",       icon: Users,           roles: ["ADMIN", "ADVISOR", "AUDITOR"] },
   { href: ROUTES.ACCOUNTS,   label: "Cuentas",        icon: CreditCard,      roles: ["ADMIN", "ADVISOR", "AUDITOR", "CLIENT"] },
   { href: ROUTES.TRANSFERS,  label: "Transferencias", icon: ArrowLeftRight,  roles: ["ADMIN", "ADVISOR", "AUDITOR", "CLIENT"] },
-  { href: ROUTES.SAVINGS,    label: "Ahorros",         icon: PiggyBank,       roles: ["ADMIN", "ADVISOR", "AUDITOR"] },
-  { href: ROUTES.AUDIT,      label: "Auditoría",      icon: ClipboardList,   roles: ["ADMIN", "ADVISOR", "AUDITOR"] },
+  { href: ROUTES.SAVINGS,     label: "Ahorros",      icon: PiggyBank,    roles: ["ADMIN", "ADVISOR", "AUDITOR"] },
+  { href: ROUTES.INVESTMENTS, label: "Inversiones",  icon: TrendingUp,   roles: ["ADMIN", "ADVISOR", "CLIENT"] },
+  { href: ROUTES.AUDIT,       label: "Auditoría",    icon: ClipboardList, roles: ["ADMIN", "ADVISOR", "AUDITOR"] },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {

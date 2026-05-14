@@ -5,10 +5,18 @@ import type { AccountFilterParams, CreateAccountRequest } from "@/types/account.
 
 const QUERY_KEY = "accounts";
 
-export function useAccounts(params: AccountFilterParams) {
+export function useAccounts(params: AccountFilterParams, enabled = true) {
   return useQuery({
     queryKey: [QUERY_KEY, params],
     queryFn: () => accountService.findAll(params),
+    enabled,
+  });
+}
+
+export function useMyAccounts() {
+  return useQuery({
+    queryKey: [QUERY_KEY, "me"],
+    queryFn: accountService.findMine,
   });
 }
 

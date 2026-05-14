@@ -22,6 +22,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.beans.factory.annotation.Value;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -33,6 +35,10 @@ import java.util.concurrent.ThreadLocalRandom;
 @Service
 @RequiredArgsConstructor
 public class AccountServiceImpl implements AccountService {
+
+    /** 4-digit IBAN bank code. Default: 0152 (placeholder). Override via app.iban.bank-code. */
+    @Value("${app.iban.bank-code:0152}")
+    private String ibanBankCode;
 
     private final AccountRepository       accountRepository;
     private final AccountMovementRepository movementRepository;
@@ -58,6 +64,14 @@ public class AccountServiceImpl implements AccountService {
     @Transactional(readOnly = true)
     public List<AccountResponse> findByCustomerId(UUID customerId) {
         return accountMapper.toResponseList(accountRepository.findByCustomerId(customerId));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<AccountResponse> findByCurrentUserEmail(String email) {
+        return customerRepository.findByEmailIgnoreCase(email)
+                .map(customer -> accountMapper.toResponseList(accountRepository.findByCustomerId(customer.getId())))
+                .orElse(List.of());
     }
 
     @Override
@@ -200,17 +214,17 @@ public class AccountServiceImpl implements AccountService {
         movementRepository.save(movement);
     }
 
+    /**
+     * Generates a unique, valid Costa Rica IBAN (22 chars).
+     * Retries until no collision in DB (practically never needed).
+     */
     private String generateUniqueAccountNumber(AccountType tipo) {
-        String prefix = switch (tipo) {
-            case AHORROS   -> "AHO";
-            case EMPRESARIAL -> "EMP";
-            case CORRIENTE -> "COR";
-        };
-        String numero;
+        String iban;
         do {
-            numero = "CBL-" + prefix + "-" + String.format("%06d",
-                    ThreadLocalRandom.current().nextInt(0, 999_999));
-        } while (accountRepository.existsByNumeroCuenta(numero));
-        return numero;
+            String accountDigits = String.format("%014d",
+                    ThreadLocalRandom.current().nextLong(0L, 99_999_999_999_999L));
+            iban = IbanGenerator.generate(ibanBankCode, accountDigits);
+        } while (accountRepository.existsByNumeroCuenta(iban));
+        return iban;
     }
 }

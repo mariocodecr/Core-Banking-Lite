@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Plus, Search } from "lucide-react";
-import { useAccounts, useCloseAccount, useFreezeAccount, useUnfreezeAccount } from "@/hooks/use-accounts";
+import { useAccounts, useMyAccounts, useCloseAccount, useFreezeAccount, useUnfreezeAccount } from "@/hooks/use-accounts";
 import { AccountCard } from "@/features/accounts/account-card";
 import { AccountMovements } from "@/features/accounts/account-movements";
 import { CreateAccountDrawer } from "@/features/accounts/create-account-drawer";
@@ -20,11 +20,22 @@ export default function AccountsPage() {
   const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  const { data, isLoading, isError } = useAccounts(filters);
+  const { role, canCreateAccounts, canFreezeAccounts, canCloseAccounts } = usePermissions();
+  const isClient = role === "CLIENT";
+
+  const { data: pagedData, isLoading: pagedLoading, isError: pagedError } = useAccounts(filters, !!role && !isClient);
+  const { data: myAccounts, isLoading: myLoading, isError: myError } = useMyAccounts();
+
+  const accounts  = isClient ? (myAccounts ?? [])          : (pagedData?.content ?? []);
+  const isLoading = isClient ? myLoading                   : pagedLoading;
+  const isError   = isClient ? myError                     : pagedError;
+  const totalLabel = isClient
+    ? `${accounts.length} cuentas`
+    : (pagedData ? `${pagedData.totalElements} cuentas` : "Cargando...");
+
   const { mutate: freeze }   = useFreezeAccount();
   const { mutate: unfreeze } = useUnfreezeAccount();
   const { mutate: close }    = useCloseAccount();
-  const { canCreateAccounts, canFreezeAccounts, canCloseAccounts } = usePermissions();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,9 +58,7 @@ export default function AccountsPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-xl font-bold text-slate-900 dark:text-white">Cuentas</h1>
-            <p className="mt-0.5 text-xs text-slate-500">
-              {data ? `${data.totalElements} cuentas` : "Cargando..."}
-            </p>
+            <p className="mt-0.5 text-xs text-slate-500">{totalLabel}</p>
           </div>
           {canCreateAccounts && (
             <button
@@ -62,37 +71,41 @@ export default function AccountsPage() {
           )}
         </div>
 
-        <form onSubmit={handleSearch} className="flex gap-2">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Buscar por número..."
-              className="w-full rounded-xl border border-slate-200 bg-white py-2 pl-8 pr-3 text-xs focus:border-blue-500 focus:outline-none dark:border-slate-700 dark:bg-slate-800"
-            />
-          </div>
-          <button type="submit" className="rounded-xl border border-slate-200 bg-white px-3 text-xs font-medium text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800">
-            Buscar
-          </button>
-        </form>
+        {!isClient && (
+          <>
+            <form onSubmit={handleSearch} className="flex gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
+                <input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Buscar por número..."
+                  className="w-full rounded-xl border border-slate-200 bg-white py-2 pl-8 pr-3 text-xs focus:border-blue-500 focus:outline-none dark:border-slate-700 dark:bg-slate-800"
+                />
+              </div>
+              <button type="submit" className="rounded-xl border border-slate-200 bg-white px-3 text-xs font-medium text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800">
+                Buscar
+              </button>
+            </form>
 
-        {/* Filter tabs */}
-        <div className="flex gap-1.5">
-          {(["", "AHORROS", "EMPRESARIAL", "CORRIENTE"] as const).map((tipo) => (
-            <button
-              key={tipo}
-              onClick={() => setFilters((p) => ({ ...p, tipo: tipo || undefined, page: 0 }))}
-              className={`rounded-lg px-2.5 py-1 text-xs font-medium transition-colors ${
-                filters.tipo === tipo || (!filters.tipo && !tipo)
-                  ? "bg-blue-600 text-white"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300"
-              }`}
-            >
-              {tipo || "Todas"}
-            </button>
-          ))}
-        </div>
+            {/* Filter tabs */}
+            <div className="flex gap-1.5">
+              {(["", "AHORROS", "EMPRESARIAL", "CORRIENTE"] as const).map((tipo) => (
+                <button
+                  key={tipo}
+                  onClick={() => setFilters((p) => ({ ...p, tipo: tipo || undefined, page: 0 }))}
+                  className={`rounded-lg px-2.5 py-1 text-xs font-medium transition-colors ${
+                    filters.tipo === tipo || (!filters.tipo && !tipo)
+                      ? "bg-blue-600 text-white"
+                      : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300"
+                  }`}
+                >
+                  {tipo || "Todas"}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
 
         {/* Account cards */}
         {isError ? (
@@ -103,7 +116,7 @@ export default function AccountsPage() {
           <AccountCardsSkeleton />
         ) : (
           <div className="space-y-3">
-            {data?.content.map((account) => (
+            {accounts.map((account) => (
               <AccountCard
                 key={account.id}
                 account={account}
@@ -111,7 +124,7 @@ export default function AccountsPage() {
                 onClick={() => setSelectedAccount(account)}
               />
             ))}
-            {data?.content.length === 0 && (
+            {accounts.length === 0 && (
               <div className="flex flex-col items-center justify-center py-12 text-center">
                 <p className="text-sm text-slate-500">No se encontraron cuentas</p>
               </div>

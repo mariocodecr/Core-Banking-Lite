@@ -15,6 +15,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -29,6 +31,14 @@ import java.util.UUID;
 public class AccountController {
 
     private final AccountService accountService;
+
+    @GetMapping("/me")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ADVISOR', 'AUDITOR', 'CLIENT')")
+    @Operation(summary = "Get accounts belonging to the authenticated user's customer profile")
+    public ResponseEntity<List<AccountResponse>> getMyAccounts(
+            @AuthenticationPrincipal UserDetails principal) {
+        return ResponseEntity.ok(accountService.findByCurrentUserEmail(principal.getUsername()));
+    }
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'ADVISOR', 'AUDITOR')")

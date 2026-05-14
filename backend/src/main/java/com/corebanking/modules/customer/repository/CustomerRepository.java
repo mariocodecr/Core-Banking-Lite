@@ -16,5 +16,7 @@ public interface CustomerRepository extends JpaRepository<Customer, UUID>, JpaSp
 
     Optional<Customer> findByNumeroDocumento(String numeroDocumento);
 
+    Optional<Customer> findByEmailIgnoreCase(String email);
+
     long countByEstado(CustomerStatus estado);
 }

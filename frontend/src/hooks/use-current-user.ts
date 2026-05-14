@@ -1,14 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { getUser } from "@/lib/auth-storage";
 import type { UserInfo, Role } from "@/types/auth.types";
 
 export function useCurrentUser(): UserInfo | null {
-  const [user] = useState<UserInfo | null>(() => {
-    if (typeof window === "undefined") return null;
-    return getUser();
-  });
+  const [user, setUser] = useState<UserInfo | null>(null);
+
+  useEffect(() => {
+    setUser(getUser());
+  }, []);
+
   return user;
 }
 
@@ -19,7 +21,7 @@ export function usePermissions() {
   return {
     role,
     // Nav visibility
-    canViewDashboard:    role !== "CLIENT",
+    canViewDashboard:    true,
     canViewCustomers:    role !== "CLIENT",
     canViewSavings:      role !== "CLIENT",
     canViewAudit:        role !== "CLIENT",

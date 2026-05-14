@@ -7,6 +7,7 @@ import com.corebanking.modules.account.dto.AccountResponse;
 import com.corebanking.modules.account.entity.MovementType;
 import com.corebanking.modules.account.repository.AccountRepository;
 import com.corebanking.modules.account.service.AccountService;
+import com.corebanking.modules.customer.repository.CustomerRepository;
 import com.corebanking.modules.exchangerate.service.ExchangeRateService;
 import com.corebanking.modules.transfer.dto.CreateTransferRequest;
 import com.corebanking.modules.transfer.dto.TransferResponse;
@@ -25,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -36,6 +38,7 @@ public class TransferServiceImpl implements TransferService {
     private final TransferMapper      transferMapper;
     private final AccountService      accountService;
     private final AccountRepository   accountRepository;
+    private final CustomerRepository  customerRepository;
     private final ExchangeRateService exchangeRateService;
 
     @Value("${app.transfers.daily-limit:500000.00}")
@@ -57,6 +60,24 @@ public class TransferServiceImpl implements TransferService {
     public PagedResponse<TransferResponse> findAll(Pageable pageable) {
         return PagedResponse.from(
                 transferRepository.findAllByOrderByFechaTransferenciaDesc(pageable)
+                        .map(transferMapper::toResponse)
+        );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PagedResponse<TransferResponse> findByUserEmail(String email, Pageable pageable) {
+        List<UUID> accountIds = customerRepository.findByEmailIgnoreCase(email)
+                .map(customer -> accountRepository.findByCustomerId(customer.getId())
+                        .stream().map(a -> a.getId()).toList())
+                .orElse(List.of());
+
+        if (accountIds.isEmpty()) {
+            return PagedResponse.empty();
+        }
+
+        return PagedResponse.from(
+                transferRepository.findByAccountIds(accountIds, pageable)
                         .map(transferMapper::toResponse)
         );
     }

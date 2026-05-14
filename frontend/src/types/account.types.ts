@@ -2,7 +2,7 @@ import type { PaginationParams } from "@/types";
 
 export type AccountType   = "AHORROS" | "EMPRESARIAL" | "CORRIENTE";
 export type AccountStatus = "ACTIVA" | "CONGELADA" | "CERRADA";
-export type MovementType  = "DEPOSITO" | "RETIRO" | "TRANSFERENCIA_ENTRADA" | "TRANSFERENCIA_SALIDA";
+export type MovementType  = "DEPOSITO" | "RETIRO" | "TRANSFERENCIA_ENTRADA" | "TRANSFERENCIA_SALIDA" | "COMPRA_INVERSION" | "VENTA_INVERSION";
 
 export interface Account {
   id:           string;

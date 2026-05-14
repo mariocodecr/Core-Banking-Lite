@@ -5,10 +5,19 @@ import type { CreateTransferRequest } from "@/types/transfer.types";
 
 const QUERY_KEY = "transfers";
 
-export function useTransfers(params?: { page?: number; size?: number }) {
+export function useTransfers(params?: { page?: number; size?: number }, enabled = true) {
   return useQuery({
     queryKey: [QUERY_KEY, params],
     queryFn: () => transferService.getAll(params).then((r) => r.data),
+    enabled,
+  });
+}
+
+export function useMyTransfers(params?: { page?: number; size?: number }, enabled = true) {
+  return useQuery({
+    queryKey: [QUERY_KEY, "me", params],
+    queryFn: () => transferService.getMine(params).then((r) => r.data),
+    enabled,
   });
 }
 

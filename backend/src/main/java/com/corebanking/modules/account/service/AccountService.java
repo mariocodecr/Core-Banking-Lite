@@ -17,6 +17,8 @@ public interface AccountService {
 
     PagedResponse<AccountResponse> findAll(AccountFilterParams filters, Pageable pageable);
 
+    List<AccountResponse> findByCurrentUserEmail(String email);
+
     AccountResponse findById(UUID id);
 
     List<AccountResponse> findByCustomerId(UUID customerId);

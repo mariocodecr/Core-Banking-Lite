@@ -1,11 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { dashboardService } from "@/services/dashboard.service";
 
-export function useDashboardSummary() {
+export function useDashboardSummary(enabled = true) {
   return useQuery({
     queryKey: ["dashboard", "summary"],
     queryFn: () => dashboardService.getSummary().then((r) => r.data),
     refetchInterval: 60_000,
+    enabled,
   });
 }
 

@@ -2,11 +2,20 @@
 
 import { CheckCircle2, XCircle, ArrowRight } from "lucide-react";
 import { cn, formatCurrency, formatDateTime } from "@/lib/utils";
-import { useTransfers } from "@/hooks/use-transfers";
+import { useTransfers, useMyTransfers } from "@/hooks/use-transfers";
+import { usePermissions } from "@/hooks/use-current-user";
 import type { Transfer } from "@/types/transfer.types";
 
 export function TransferHistory() {
-  const { data, isLoading } = useTransfers({ size: 50 });
+  const { role } = usePermissions();
+  const isClient = role === "CLIENT";
+  const roleReady = !!role;
+
+  const { data: allData, isLoading: allLoading } = useTransfers({ size: 50 }, roleReady && !isClient);
+  const { data: myData,  isLoading: myLoading  } = useMyTransfers({ size: 50 }, roleReady && isClient);
+
+  const data      = isClient ? myData      : allData;
+  const isLoading = isClient ? myLoading   : allLoading;
 
   if (isLoading) {
     return (

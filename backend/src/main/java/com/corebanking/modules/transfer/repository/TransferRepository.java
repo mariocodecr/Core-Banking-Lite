@@ -19,6 +19,9 @@ public interface TransferRepository extends JpaRepository<Transfer, UUID> {
 
     Page<Transfer> findAllByOrderByFechaTransferenciaDesc(Pageable pageable);
 
+    @Query("SELECT t FROM Transfer t WHERE t.cuentaOrigen.id IN :ids OR t.cuentaDestino.id IN :ids ORDER BY t.fechaTransferencia DESC")
+    Page<Transfer> findByAccountIds(@Param("ids") List<UUID> accountIds, Pageable pageable);
+
     /**
      * Calculates the total amount transferred from a given account on the current day.
      * Used to enforce daily transfer limits.

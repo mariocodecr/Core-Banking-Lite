@@ -5,7 +5,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Loader2, ArrowRight, ArrowLeftRight } from "lucide-react";
 import { useCreateTransfer } from "@/hooks/use-transfers";
-import { useAccounts } from "@/hooks/use-accounts";
+import { useAccounts, useMyAccounts } from "@/hooks/use-accounts";
+import { usePermissions } from "@/hooks/use-current-user";
 import { useExchangeRate } from "@/hooks/use-exchange-rate";
 import { formatCurrency } from "@/lib/utils";
 import type { Account } from "@/types/account.types";
@@ -25,8 +26,16 @@ const schema = z
 type FormData = z.infer<typeof schema>;
 
 export function TransferForm({ onSuccess }: { onSuccess?: () => void }) {
-  const { data: accountsPage } = useAccounts({ size: 100 });
-  const activeAccounts = accountsPage?.content.filter((a) => a.estado === "ACTIVA") ?? [];
+  const { role } = usePermissions();
+  const roleReady = !!role;
+  const isClient = role === "CLIENT";
+
+  const { data: pagedAccounts } = useAccounts({ size: 100 }, roleReady && !isClient);
+  const { data: myAccountsList } = useMyAccounts();
+
+  const activeAccounts = isClient
+    ? (myAccountsList?.filter((a) => a.estado === "ACTIVA") ?? [])
+    : (pagedAccounts?.content.filter((a) => a.estado === "ACTIVA") ?? []);
 
   const { mutate: create, isPending } = useCreateTransfer();
 

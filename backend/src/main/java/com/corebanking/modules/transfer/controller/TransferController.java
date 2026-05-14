@@ -13,6 +13,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -50,5 +52,14 @@ public class TransferController {
     public ResponseEntity<PagedResponse<TransferResponse>> findAll(
             @PageableDefault(size = 20, sort = "fechaTransferencia") Pageable pageable) {
         return ResponseEntity.ok(transferService.findAll(pageable));
+    }
+
+    @Operation(summary = "List transfers for the authenticated user's accounts")
+    @GetMapping("/me")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ADVISOR', 'CLIENT', 'AUDITOR')")
+    public ResponseEntity<PagedResponse<TransferResponse>> findMine(
+            @AuthenticationPrincipal UserDetails principal,
+            @PageableDefault(size = 20) Pageable pageable) {
+        return ResponseEntity.ok(transferService.findByUserEmail(principal.getUsername(), pageable));
     }
 }
