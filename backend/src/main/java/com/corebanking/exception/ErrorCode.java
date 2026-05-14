@@ -30,7 +30,13 @@ public enum ErrorCode {
     CONCURRENCY_CONFLICT("CBL-030", "Concurrent modification detected, please retry", HttpStatus.CONFLICT),
 
     // Rate limiting
-    RATE_LIMIT_EXCEEDED("CBL-040", "Too many requests, please slow down", HttpStatus.TOO_MANY_REQUESTS);
+    RATE_LIMIT_EXCEEDED("CBL-040", "Too many requests, please slow down", HttpStatus.TOO_MANY_REQUESTS),
+
+    // Investments
+    INSTRUMENT_NOT_FOUND("CBL-050", "Instrument not found or not available", HttpStatus.NOT_FOUND),
+    INSUFFICIENT_SHARES("CBL-051", "Insufficient shares for this operation", HttpStatus.UNPROCESSABLE_ENTITY),
+    MARKET_DATA_UNAVAILABLE("CBL-052", "Market data unavailable and no fallback price in DB", HttpStatus.SERVICE_UNAVAILABLE),
+    ACCOUNT_CURRENCY_NOT_USD("CBL-053", "Investment accounts must be denominated in USD", HttpStatus.UNPROCESSABLE_ENTITY);
 
     private final String code;
     private final String defaultMessage;

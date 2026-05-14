@@ -1,18 +1,20 @@
 "use client";
 
-import { ArrowDownLeft, ArrowUpRight, RefreshCw } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, RefreshCw, TrendingUp, TrendingDown } from "lucide-react";
 import { cn, formatCurrency, formatDateTime } from "@/lib/utils";
 import { useAccountMovements } from "@/hooks/use-accounts";
 import type { AccountMovement, MovementType } from "@/types/account.types";
 
 const MOVEMENT_CONFIG: Record<MovementType, { icon: React.ReactNode; color: string; sign: string }> = {
-  DEPOSITO:              { icon: <ArrowDownLeft className="h-3.5 w-3.5" />, color: "text-emerald-600 bg-emerald-50", sign: "+" },
-  RETIRO:                { icon: <ArrowUpRight  className="h-3.5 w-3.5" />, color: "text-red-500 bg-red-50",         sign: "-" },
-  TRANSFERENCIA_ENTRADA: { icon: <ArrowDownLeft className="h-3.5 w-3.5" />, color: "text-blue-600 bg-blue-50",       sign: "+" },
-  TRANSFERENCIA_SALIDA:  { icon: <ArrowUpRight  className="h-3.5 w-3.5" />, color: "text-orange-500 bg-orange-50",   sign: "-" },
+  DEPOSITO:              { icon: <ArrowDownLeft  className="h-3.5 w-3.5" />, color: "text-emerald-600 bg-emerald-50",  sign: "+" },
+  RETIRO:                { icon: <ArrowUpRight   className="h-3.5 w-3.5" />, color: "text-red-500 bg-red-50",          sign: "-" },
+  TRANSFERENCIA_ENTRADA: { icon: <ArrowDownLeft  className="h-3.5 w-3.5" />, color: "text-blue-600 bg-blue-50",        sign: "+" },
+  TRANSFERENCIA_SALIDA:  { icon: <ArrowUpRight   className="h-3.5 w-3.5" />, color: "text-orange-500 bg-orange-50",   sign: "-" },
+  COMPRA_INVERSION:      { icon: <TrendingUp     className="h-3.5 w-3.5" />, color: "text-violet-600 bg-violet-50",   sign: "-" },
+  VENTA_INVERSION:       { icon: <TrendingDown   className="h-3.5 w-3.5" />, color: "text-teal-600 bg-teal-50",       sign: "+" },
 };
 
-const CREDIT_TYPES: MovementType[] = ["DEPOSITO", "TRANSFERENCIA_ENTRADA"];
+const CREDIT_TYPES: MovementType[] = ["DEPOSITO", "TRANSFERENCIA_ENTRADA", "VENTA_INVERSION"];
 
 interface Props {
   accountId: string;

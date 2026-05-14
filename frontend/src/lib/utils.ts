@@ -13,6 +13,10 @@ export function formatCurrency(amount: number, currency = "USD"): string {
   }).format(amount);
 }
 
+export function formatShares(shares: number): string {
+  return new Intl.NumberFormat("en-US", { maximumFractionDigits: 4 }).format(shares);
+}
+
 export function formatDate(date: string | Date): string {
   return new Intl.DateTimeFormat("es-PE", {
     year: "numeric",

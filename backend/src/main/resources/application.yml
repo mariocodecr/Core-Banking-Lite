@@ -100,3 +100,10 @@ app:
     daily-limit: ${TRANSFER_DAILY_LIMIT:500000.00}
   bccr:
     enabled: true
+  iban:
+    bank-code: ${IBAN_BANK_CODE:0152}
+  alpha-vantage:
+    enabled: true
+    api-key: ${ALPHA_VANTAGE_API_KEY}
+  investments:
+    pending-execution-interval-ms: ${MUTUAL_FUND_EXECUTION_INTERVAL_MS:300000}  # 5 min default

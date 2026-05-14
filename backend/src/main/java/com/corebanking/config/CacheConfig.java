@@ -17,6 +17,7 @@ public class CacheConfig {
     public static final String CACHE_DASHBOARD_SUMMARY = "dashboardSummary";
     public static final String CACHE_CUSTOMERS         = "customers";
     public static final String CACHE_EXCHANGE_RATES    = "exchangeRates";
+    public static final String CACHE_MARKET_DATA       = "marketData";
 
     @Bean
     public RedisCacheConfiguration defaultCacheConfiguration() {
@@ -36,6 +37,8 @@ public class CacheConfig {
                 .withCacheConfiguration(CACHE_CUSTOMERS,
                         defaultCacheConfiguration().entryTtl(Duration.ofMinutes(10)))
                 .withCacheConfiguration(CACHE_EXCHANGE_RATES,
-                        defaultCacheConfiguration().entryTtl(Duration.ofHours(4)));
+                        defaultCacheConfiguration().entryTtl(Duration.ofHours(4)))
+                .withCacheConfiguration(CACHE_MARKET_DATA,
+                        defaultCacheConfiguration().entryTtl(Duration.ofHours(1)));
     }
 }
