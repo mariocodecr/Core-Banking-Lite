@@ -26,7 +26,6 @@ app:
     enabled: false
   alpha-vantage:
     api-key: test-dummy-key
-    enabled: false
 
 logging:
   level:
