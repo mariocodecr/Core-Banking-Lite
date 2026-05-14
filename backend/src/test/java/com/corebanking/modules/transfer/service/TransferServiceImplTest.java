@@ -8,6 +8,8 @@ import com.corebanking.modules.account.entity.AccountType;
 import com.corebanking.modules.account.entity.MovementType;
 import com.corebanking.modules.account.repository.AccountRepository;
 import com.corebanking.modules.account.service.AccountService;
+import com.corebanking.modules.customer.repository.CustomerRepository;
+import com.corebanking.modules.exchangerate.service.ExchangeRateService;
 import com.corebanking.modules.transfer.dto.CreateTransferRequest;
 import com.corebanking.modules.transfer.dto.TransferResponse;
 import com.corebanking.modules.transfer.entity.Transfer;
@@ -41,6 +43,8 @@ class TransferServiceImplTest {
     @Mock private TransferMapper      transferMapper;
     @Mock private AccountService      accountService;
     @Mock private AccountRepository   accountRepository;
+    @Mock private CustomerRepository  customerRepository;
+    @Mock private ExchangeRateService exchangeRateService;
 
     @InjectMocks private TransferServiceImpl transferService;
 
@@ -54,6 +58,8 @@ class TransferServiceImplTest {
     @BeforeEach
     void setUp() {
         ReflectionTestUtils.setField(transferService, "dailyLimit", new BigDecimal("50000.00"));
+        lenient().when(exchangeRateService.getRate(any(), any())).thenReturn(BigDecimal.ONE);
+        lenient().when(exchangeRateService.convert(any(), any(), any())).thenAnswer(inv -> inv.getArgument(0));
 
         origenResponse = new AccountResponse();
         origenResponse.setId(origenId);

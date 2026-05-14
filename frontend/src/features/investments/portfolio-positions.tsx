@@ -22,7 +22,6 @@ export function PortfolioPositions({ portfolio }: Props) {
           label="P&L ($)"
           value={formatCurrency(totalPnl, "USD")}
           positive={isPositive}
-          signed
         />
         <KpiCard
           label="P&L (%)"
@@ -97,12 +96,10 @@ function KpiCard({
   label,
   value,
   positive,
-  signed,
 }: {
   label: string;
   value: string;
   positive?: boolean;
-  signed?: boolean;
 }) {
   const colorClass =
     positive === undefined

@@ -16,6 +16,12 @@ spring:
       ddl-auto: create-drop
     show-sql: true
 
+app:
+  jwt:
+    secret: 0000000000000000000000000000000000000000000000000000000000000000
+  alpha-vantage:
+    api-key: test-dummy-key
+
 logging:
   level:
     com.corebanking: DEBUG
