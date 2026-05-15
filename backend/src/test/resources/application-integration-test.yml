@@ -29,6 +29,7 @@ app:
 
 logging:
   level:
-    com.corebanking: INFO
+    com.corebanking: DEBUG
+    org.springframework.security: DEBUG
     org.testcontainers: WARN
     com.zaxxer.hikari: WARN
