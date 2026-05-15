@@ -15,7 +15,7 @@ spring:
 
 app:
   jwt:
-    secret: integration-test-jwt-secret-key-not-for-production
+    secret: 0000000000000000000000000000000000000000000000000000000000000000
     expiration: 3600000
     refresh-expiration: 86400000
   cors:

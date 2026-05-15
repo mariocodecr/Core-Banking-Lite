@@ -19,8 +19,6 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.time.LocalDate;
 
@@ -36,15 +34,20 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  */
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-@Testcontainers
 @ActiveProfiles("integration-test")
 public abstract class BaseIntegrationTest {
 
-    @Container
+    // Singleton pattern: started once per JVM, stopped via shutdown hook.
+    // Using @Container on a static field in a base class causes Testcontainers to
+    // stop the container after each concrete test class, breaking subsequent classes.
     static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>("postgres:16-alpine")
             .withDatabaseName("corebanking_it")
             .withUsername("it_user")
             .withPassword("it_pass");
+
+    static {
+        POSTGRES.start();
+    }
 
     @DynamicPropertySource
     static void overrideDatasource(DynamicPropertyRegistry registry) {
