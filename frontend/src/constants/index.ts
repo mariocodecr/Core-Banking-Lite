@@ -7,8 +7,9 @@ export const ROUTES = {
   CUSTOMERS: "/dashboard/customers",
   ACCOUNTS: "/dashboard/accounts",
   TRANSFERS: "/dashboard/transfers",
-  SAVINGS: "/dashboard/savings",
-  AUDIT: "/dashboard/audit",
+  SAVINGS:     "/dashboard/savings",
+  INVESTMENTS: "/dashboard/investments",
+  AUDIT:       "/dashboard/audit",
 } as const;
 
 export const PAGINATION_DEFAULTS = {

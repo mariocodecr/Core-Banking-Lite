@@ -28,6 +28,8 @@ val mapstructVersion = "1.6.2"
 val jjwtVersion = "0.12.6"
 val springdocVersion = "2.6.0"
 val lombokMapstructBindingVersion = "0.2.0"
+val logstashEncoderVersion = "8.0"
+val bucket4jVersion = "8.7.0"
 
 dependencies {
     // Spring Boot starters
@@ -36,6 +38,14 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.boot:spring-boot-starter-aop")
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
+
+    // Rate limiting
+    implementation("com.bucket4j:bucket4j-core:$bucket4jVersion")
+
+    // Structured JSON logging (production)
+    implementation("net.logstash.logback:logstash-logback-encoder:$logstashEncoderVersion")
 
     // Database
     runtimeOnly("org.postgresql:postgresql")
@@ -58,18 +68,47 @@ dependencies {
     // Binding required to prevent Lombok/MapStruct annotation processor ordering issues
     annotationProcessor("org.projectlombok:lombok-mapstruct-binding:$lombokMapstructBindingVersion")
 
-    // Testing
+    // Testing — unit tests
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
     testRuntimeOnly("com.h2database:h2")
+
+    // Testing — integration tests with Testcontainers
+    testImplementation("org.springframework.boot:spring-boot-testcontainers")
+    testImplementation("org.testcontainers:junit-jupiter")
+    testImplementation("org.testcontainers:postgresql")
+}
+
+springBoot {
+    buildInfo()
 }
 
 tasks.withType<Test> {
     useJUnitPlatform()
 }
 
+val jacocoExclusions = listOf(
+    // Entry point — no logic to test
+    "**/CoreBankingApplication*",
+    // DTOs — pure data holders, no logic
+    "**/dto/**",
+    // JPA entities — getters/setters only
+    "**/entity/**",
+    // Spring configuration beans
+    "**/config/**",
+    // MapStruct generated implementations
+    "**/*MapperImpl*",
+    // Enum types
+    "**/exception/ErrorCode*"
+)
+
 tasks.jacocoTestReport {
     dependsOn(tasks.test)
+    classDirectories.setFrom(
+        files(classDirectories.files.map { dir ->
+            fileTree(dir) { exclude(jacocoExclusions) }
+        })
+    )
     reports {
         xml.required.set(true)
         html.required.set(true)
@@ -77,6 +116,11 @@ tasks.jacocoTestReport {
 }
 
 tasks.jacocoTestCoverageVerification {
+    classDirectories.setFrom(
+        files(classDirectories.files.map { dir ->
+            fileTree(dir) { exclude(jacocoExclusions) }
+        })
+    )
     violationRules {
         rule {
             limit {

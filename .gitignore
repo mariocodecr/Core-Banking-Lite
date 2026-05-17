@@ -8,6 +8,7 @@ backend/build/
 backend/.gradle/
 backend/out/
 *.jar
+!backend/gradle/wrapper/gradle-wrapper.jar
 *.war
 *.class
 

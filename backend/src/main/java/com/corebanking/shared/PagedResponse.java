@@ -22,6 +22,14 @@ public class PagedResponse<T> {
     private final boolean last;
     private final boolean first;
 
+    public static <T> PagedResponse<T> empty() {
+        return PagedResponse.<T>builder()
+                .content(List.of())
+                .page(0).size(0).totalElements(0).totalPages(0)
+                .last(true).first(true)
+                .build();
+    }
+
     public static <T> PagedResponse<T> from(Page<T> page) {
         return PagedResponse.<T>builder()
                 .content(page.getContent())

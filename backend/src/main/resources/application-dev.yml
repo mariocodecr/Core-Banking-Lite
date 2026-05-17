@@ -1,8 +1,14 @@
 spring:
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     show-sql: true
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:dev-only-jwt-secret-change-before-going-to-production}
+  alpha-vantage:
+    api-key: ${ALPHA_VANTAGE_API_KEY:R088AQH7INTFN6X0}
 
 logging:
   level:

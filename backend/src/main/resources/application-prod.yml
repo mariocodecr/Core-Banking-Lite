@@ -4,7 +4,22 @@ spring:
       ddl-auto: validate
     show-sql: false
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,loggers
+  endpoint:
+    health:
+      show-details: when-authorized
+  metrics:
+    export:
+      defaults:
+        enabled: true
+
 logging:
   level:
     root: WARN
     com.corebanking: INFO
+    org.springframework.security: WARN
+    com.zaxxer.hikari: WARN

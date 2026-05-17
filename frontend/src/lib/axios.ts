@@ -1,5 +1,5 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
-import { TOKEN_KEYS } from "@/constants";
+import { clearTokens, getAccessToken, getRefreshToken, setTokens } from "@/lib/auth-storage";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080/api";
 
@@ -11,11 +11,9 @@ export const apiClient = axios.create({
 
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    if (typeof window !== "undefined") {
-      const token = localStorage.getItem(TOKEN_KEYS.ACCESS);
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
+    const token = getAccessToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
@@ -29,12 +27,25 @@ apiClient.interceptors.response.use(
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
-      // Refresh token logic added in Phase 2
-      localStorage.removeItem(TOKEN_KEYS.ACCESS);
-      localStorage.removeItem(TOKEN_KEYS.REFRESH);
+
+      const refreshToken = getRefreshToken();
+      if (refreshToken) {
+        try {
+          const { data } = await axios.post(`${API_URL}/v1/auth/refresh`, { refreshToken });
+          setTokens(data.accessToken, data.refreshToken);
+          originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
+          return apiClient(originalRequest);
+        } catch {
+          // Refresh failed — force logout
+        }
+      }
+
+      clearTokens();
       window.location.href = "/login";
     }
 
     return Promise.reject(error);
   },
 );
+
+export default apiClient;

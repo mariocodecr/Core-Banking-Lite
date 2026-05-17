@@ -18,6 +18,21 @@ services:
       timeout: 5s
       retries: 5
 
+  redis:
+    image: redis:7-alpine
+    container_name: corebanking-redis
+    restart: unless-stopped
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   backend:
     build:
       context: ./backend
@@ -25,17 +40,30 @@ services:
     container_name: corebanking-backend
     restart: unless-stopped
     environment:
-      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-prod}
       DATABASE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-corebanking_dev}
       DATABASE_USERNAME: ${POSTGRES_USER:-corebanking}
       DATABASE_PASSWORD: ${POSTGRES_PASSWORD:-corebanking123}
       JWT_SECRET: ${JWT_SECRET}
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000}
+      TRANSFER_DAILY_LIMIT: ${TRANSFER_DAILY_LIMIT:-500000.00}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      BCCR_EMAIL: ${BCCR_EMAIL}
+      BCCR_TOKEN: ${BCCR_TOKEN}
     ports:
       - "${BACKEND_PORT:-8080}:8080"
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/api/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      start_period: 60s
+      retries: 3
     profiles:
       - full
 
@@ -50,9 +78,11 @@ services:
     ports:
       - "${FRONTEND_PORT:-3000}:3000"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     profiles:
       - full
 
 volumes:
   postgres_data:
+  redis_data:

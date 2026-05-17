@@ -1,0 +1,34 @@
+spring:
+  cache:
+    type: simple
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisReactiveAutoConfiguration
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+app:
+  jwt:
+    secret: "0000000000000000000000000000000000000000000000000000000000000000"
+    expiration: 3600000
+    refresh-expiration: 86400000
+  cors:
+    allowed-origins: http://localhost:3000
+  transfers:
+    daily-limit: 500000.00
+  bccr:
+    enabled: false
+  alpha-vantage:
+    api-key: test-dummy-key
+
+logging:
+  level:
+    com.corebanking: DEBUG
+    org.testcontainers: WARN
+    com.zaxxer.hikari: WARN

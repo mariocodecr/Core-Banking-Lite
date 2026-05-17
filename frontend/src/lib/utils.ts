@@ -5,12 +5,16 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatCurrency(amount: number, currency = "PEN"): string {
+export function formatCurrency(amount: number, currency = "USD"): string {
   return new Intl.NumberFormat("es-PE", {
     style: "currency",
     currency,
     minimumFractionDigits: 2,
   }).format(amount);
+}
+
+export function formatShares(shares: number): string {
+  return new Intl.NumberFormat("en-US", { maximumFractionDigits: 4 }).format(shares);
 }
 
 export function formatDate(date: string | Date): string {
@@ -28,5 +32,6 @@ export function formatDateTime(date: string | Date): string {
     day: "2-digit",
     hour: "2-digit",
     minute: "2-digit",
+    hour12: false,
   }).format(new Date(date));
 }
