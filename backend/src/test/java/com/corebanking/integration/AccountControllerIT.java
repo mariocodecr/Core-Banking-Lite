@@ -43,7 +43,7 @@ class AccountControllerIT extends BaseIntegrationTest {
                 }
                 """.formatted(customer.getId());
 
-        mockMvc.perform(post("/api/v1/accounts")
+        mockMvc.perform(post("/v1/accounts")
                         .header("Authorization", "Bearer " + token)
                         .contentType(APPLICATION_JSON)
                         .content(body))
@@ -59,7 +59,7 @@ class AccountControllerIT extends BaseIntegrationTest {
     void getAccounts_returnsPagedList() throws Exception {
         createAccountViaApi("AHORROS", "500.00");
 
-        mockMvc.perform(get("/api/v1/accounts")
+        mockMvc.perform(get("/v1/accounts")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", not(empty())))
@@ -71,7 +71,7 @@ class AccountControllerIT extends BaseIntegrationTest {
     void freezeAccount_activeAccount_becomesCongelada() throws Exception {
         String accountId = createAccountViaApi("AHORROS", "200.00");
 
-        mockMvc.perform(patch("/api/v1/accounts/" + accountId + "/freeze")
+        mockMvc.perform(patch("/v1/accounts/" + accountId + "/freeze")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.estado").value("CONGELADA"));
@@ -83,12 +83,12 @@ class AccountControllerIT extends BaseIntegrationTest {
         String accountId = createAccountViaApi("AHORROS", "300.00");
 
         // Freeze first
-        mockMvc.perform(patch("/api/v1/accounts/" + accountId + "/freeze")
+        mockMvc.perform(patch("/v1/accounts/" + accountId + "/freeze")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk());
 
         // Then unfreeze
-        mockMvc.perform(patch("/api/v1/accounts/" + accountId + "/unfreeze")
+        mockMvc.perform(patch("/v1/accounts/" + accountId + "/unfreeze")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.estado").value("ACTIVA"));
@@ -99,7 +99,7 @@ class AccountControllerIT extends BaseIntegrationTest {
     void closeAccount_zeroBalance_becomesCerrada() throws Exception {
         String accountId = createAccountViaApi("CORRIENTE", "0");
 
-        mockMvc.perform(patch("/api/v1/accounts/" + accountId + "/close")
+        mockMvc.perform(patch("/v1/accounts/" + accountId + "/close")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.estado").value("CERRADA"));
@@ -110,7 +110,7 @@ class AccountControllerIT extends BaseIntegrationTest {
     void closeAccount_withBalance_returns422() throws Exception {
         String accountId = createAccountViaApi("AHORROS", "500.00");
 
-        mockMvc.perform(patch("/api/v1/accounts/" + accountId + "/close")
+        mockMvc.perform(patch("/v1/accounts/" + accountId + "/close")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.errorCode").value("CBL-020"));
@@ -128,7 +128,7 @@ class AccountControllerIT extends BaseIntegrationTest {
                 }
                 """.formatted(customer.getId(), tipo, saldo);
 
-        String response = mockMvc.perform(post("/api/v1/accounts")
+        String response = mockMvc.perform(post("/v1/accounts")
                         .header("Authorization", "Bearer " + token)
                         .contentType(APPLICATION_JSON)
                         .content(body))

@@ -40,7 +40,7 @@ class TransferControllerIT extends BaseIntegrationTest {
     void transfer_valid_returns201() throws Exception {
         String key = UUID.randomUUID().toString();
 
-        mockMvc.perform(post("/api/v1/transfers")
+        mockMvc.perform(post("/v1/transfers")
                         .header("Authorization", "Bearer " + token)
                         .contentType(APPLICATION_JSON)
                         .content(transferBody(origenId, destinoId, "500.00", key)))
@@ -56,7 +56,7 @@ class TransferControllerIT extends BaseIntegrationTest {
         String key = UUID.randomUUID().toString();
 
         // First call
-        String first = mockMvc.perform(post("/api/v1/transfers")
+        String first = mockMvc.perform(post("/v1/transfers")
                         .header("Authorization", "Bearer " + token)
                         .contentType(APPLICATION_JSON)
                         .content(transferBody(origenId, destinoId, "200.00", key)))
@@ -68,7 +68,7 @@ class TransferControllerIT extends BaseIntegrationTest {
         String firstRef = objectMapper.readTree(first).path("referencia").asText();
 
         // Second call with same key — must return the same referencia
-        mockMvc.perform(post("/api/v1/transfers")
+        mockMvc.perform(post("/v1/transfers")
                         .header("Authorization", "Bearer " + token)
                         .contentType(APPLICATION_JSON)
                         .content(transferBody(origenId, destinoId, "200.00", key)))
@@ -79,7 +79,7 @@ class TransferControllerIT extends BaseIntegrationTest {
     @Test
     @DisplayName("POST /transfers — same origin and destination returns 422")
     void transfer_sameAccount_returns422() throws Exception {
-        mockMvc.perform(post("/api/v1/transfers")
+        mockMvc.perform(post("/v1/transfers")
                         .header("Authorization", "Bearer " + token)
                         .contentType(APPLICATION_JSON)
                         .content(transferBody(origenId, origenId, "100.00", UUID.randomUUID().toString())))
@@ -90,7 +90,7 @@ class TransferControllerIT extends BaseIntegrationTest {
     @Test
     @DisplayName("POST /transfers — insufficient balance returns 422 with CBL-022")
     void transfer_insufficientBalance_returns422() throws Exception {
-        mockMvc.perform(post("/api/v1/transfers")
+        mockMvc.perform(post("/v1/transfers")
                         .header("Authorization", "Bearer " + token)
                         .contentType(APPLICATION_JSON)
                         .content(transferBody(origenId, destinoId, "999999.00", UUID.randomUUID().toString())))
@@ -101,7 +101,7 @@ class TransferControllerIT extends BaseIntegrationTest {
     @Test
     @DisplayName("GET /transfers — returns paginated transfer list")
     void getTransfers_returnsList() throws Exception {
-        mockMvc.perform(get("/api/v1/transfers")
+        mockMvc.perform(get("/v1/transfers")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isArray());
@@ -122,7 +122,7 @@ class TransferControllerIT extends BaseIntegrationTest {
                 }
                 """.formatted(customerId, saldo);
 
-        String response = mockMvc.perform(post("/api/v1/accounts")
+        String response = mockMvc.perform(post("/v1/accounts")
                         .header("Authorization", "Bearer " + adminToken)
                         .contentType(APPLICATION_JSON)
                         .content(body))

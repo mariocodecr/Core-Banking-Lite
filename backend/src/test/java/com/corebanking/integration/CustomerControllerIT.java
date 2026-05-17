@@ -41,7 +41,7 @@ class CustomerControllerIT extends BaseIntegrationTest {
                 }
                 """;
 
-        mockMvc.perform(post("/api/v1/customers")
+        mockMvc.perform(post("/v1/customers")
                         .header("Authorization", "Bearer " + token)
                         .contentType(APPLICATION_JSON)
                         .content(body))
@@ -66,7 +66,7 @@ class CustomerControllerIT extends BaseIntegrationTest {
                 }
                 """;
 
-        mockMvc.perform(post("/api/v1/customers")
+        mockMvc.perform(post("/v1/customers")
                         .header("Authorization", "Bearer " + token)
                         .contentType(APPLICATION_JSON)
                         .content(body))
@@ -79,7 +79,7 @@ class CustomerControllerIT extends BaseIntegrationTest {
     void getCustomers_returnsPagedList() throws Exception {
         seedCustomer("Lista", "22222222");
 
-        mockMvc.perform(get("/api/v1/customers")
+        mockMvc.perform(get("/v1/customers")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", not(empty())))
@@ -91,7 +91,7 @@ class CustomerControllerIT extends BaseIntegrationTest {
     void getCustomerById_existingId_returnsCustomer() throws Exception {
         Customer saved = seedCustomer("GetById", "33333333");
 
-        mockMvc.perform(get("/api/v1/customers/" + saved.getId())
+        mockMvc.perform(get("/v1/customers/" + saved.getId())
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(saved.getId().toString()));
@@ -100,7 +100,7 @@ class CustomerControllerIT extends BaseIntegrationTest {
     @Test
     @DisplayName("GET /customers/{id} — unknown id returns 404")
     void getCustomerById_unknownId_returns404() throws Exception {
-        mockMvc.perform(get("/api/v1/customers/" + UUID.randomUUID())
+        mockMvc.perform(get("/v1/customers/" + UUID.randomUUID())
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.errorCode").value("CBL-003"));
@@ -111,7 +111,7 @@ class CustomerControllerIT extends BaseIntegrationTest {
     void deleteCustomer_existingId_returns204() throws Exception {
         Customer saved = seedCustomer("ParaBorrar", "44444444");
 
-        mockMvc.perform(delete("/api/v1/customers/" + saved.getId())
+        mockMvc.perform(delete("/v1/customers/" + saved.getId())
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isNoContent());
     }
@@ -119,7 +119,7 @@ class CustomerControllerIT extends BaseIntegrationTest {
     @Test
     @DisplayName("GET /customers — unauthenticated request returns 401")
     void getCustomers_unauthenticated_returns401() throws Exception {
-        mockMvc.perform(get("/api/v1/customers"))
+        mockMvc.perform(get("/v1/customers"))
                 .andExpect(status().isUnauthorized());
     }
 }

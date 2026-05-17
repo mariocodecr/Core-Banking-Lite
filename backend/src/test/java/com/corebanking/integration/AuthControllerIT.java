@@ -29,7 +29,7 @@ class AuthControllerIT extends BaseIntegrationTest {
                 {"email": "%s", "password": "%s"}
                 """.formatted(EMAIL, PASSWORD);
 
-        mockMvc.perform(post("/api/v1/auth/login")
+        mockMvc.perform(post("/v1/auth/login")
                         .contentType(APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isOk())
@@ -46,7 +46,7 @@ class AuthControllerIT extends BaseIntegrationTest {
                 {"email": "%s", "password": "wrong-password"}
                 """.formatted(EMAIL);
 
-        mockMvc.perform(post("/api/v1/auth/login")
+        mockMvc.perform(post("/v1/auth/login")
                         .contentType(APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isUnauthorized())
@@ -60,7 +60,7 @@ class AuthControllerIT extends BaseIntegrationTest {
                 {"email": "noexiste@test.com", "password": "whatever"}
                 """;
 
-        mockMvc.perform(post("/api/v1/auth/login")
+        mockMvc.perform(post("/v1/auth/login")
                         .contentType(APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isUnauthorized());
@@ -74,7 +74,7 @@ class AuthControllerIT extends BaseIntegrationTest {
                 {"email": "%s", "password": "%s"}
                 """.formatted(EMAIL, PASSWORD);
 
-        String loginResponse = mockMvc.perform(post("/api/v1/auth/login")
+        String loginResponse = mockMvc.perform(post("/v1/auth/login")
                         .contentType(APPLICATION_JSON)
                         .content(loginBody))
                 .andReturn()
@@ -87,7 +87,7 @@ class AuthControllerIT extends BaseIntegrationTest {
                 {"refreshToken": "%s"}
                 """.formatted(refreshToken);
 
-        mockMvc.perform(post("/api/v1/auth/refresh")
+        mockMvc.perform(post("/v1/auth/refresh")
                         .contentType(APPLICATION_JSON)
                         .content(refreshBody))
                 .andExpect(status().isOk())
@@ -101,7 +101,7 @@ class AuthControllerIT extends BaseIntegrationTest {
                 {"password": "somepassword"}
                 """;
 
-        mockMvc.perform(post("/api/v1/auth/login")
+        mockMvc.perform(post("/v1/auth/login")
                         .contentType(APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isBadRequest());

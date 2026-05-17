@@ -94,7 +94,7 @@ public abstract class BaseIntegrationTest {
                 """.formatted(email, password);
 
         MvcResult result = mockMvc.perform(
-                post("/api/v1/auth/login")
+                post("/v1/auth/login")
                         .contentType(APPLICATION_JSON)
                         .content(body)
         ).andReturn();
