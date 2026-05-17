@@ -93,7 +93,7 @@ class TransferControllerIT extends BaseIntegrationTest {
         mockMvc.perform(post("/v1/transfers")
                         .header("Authorization", "Bearer " + token)
                         .contentType(APPLICATION_JSON)
-                        .content(transferBody(origenId, destinoId, "999999.00", UUID.randomUUID().toString())))
+                        .content(transferBody(origenId, destinoId, "10000.00", UUID.randomUUID().toString())))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.errorCode").value("CBL-022"));
     }
