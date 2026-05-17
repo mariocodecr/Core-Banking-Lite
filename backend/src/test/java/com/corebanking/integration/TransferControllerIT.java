@@ -117,7 +117,7 @@ class TransferControllerIT extends BaseIntegrationTest {
                 {
                   "customerId": "%s",
                   "tipo": "AHORROS",
-                  "moneda": "PEN",
+                  "moneda": "USD",
                   "saldoInicial": %s
                 }
                 """.formatted(customerId, saldo);

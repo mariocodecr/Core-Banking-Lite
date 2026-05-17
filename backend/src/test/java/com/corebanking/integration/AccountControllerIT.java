@@ -38,7 +38,7 @@ class AccountControllerIT extends BaseIntegrationTest {
                 {
                   "customerId": "%s",
                   "tipo": "AHORROS",
-                  "moneda": "PEN",
+                  "moneda": "USD",
                   "saldoInicial": 1000.00
                 }
                 """.formatted(customer.getId());
@@ -123,7 +123,7 @@ class AccountControllerIT extends BaseIntegrationTest {
                 {
                   "customerId": "%s",
                   "tipo": "%s",
-                  "moneda": "PEN",
+                  "moneda": "USD",
                   "saldoInicial": %s
                 }
                 """.formatted(customer.getId(), tipo, saldo);
